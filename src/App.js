@@ -1,26 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import FormEditor from "./FormEditor";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { Grid, Card } from "@material-ui/core";
+
+class App extends React.Component {
+  state = { editor: null };
+
+  onEditorChange = value => {
+    this.setState({ editor: value });
+  };
+
+  render() {
+    return (
+      <Grid container>
+        <Grid item>
+          <FormEditor
+            value={this.state.editor}
+            onChange={this.onEditorChange}
+          />
+        </Grid>
+        <Grid item>
+          <Card>{JSON.stringify(this.state.editor)}</Card>
+        </Grid>
+      </Grid>
+    );
+  }
 }
 
 export default App;
