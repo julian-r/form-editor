@@ -1,5 +1,6 @@
 import React from "react";
 import update from "immutability-helper";
+import RichTextEditor from "react-rte";
 
 import {
   Card,
@@ -7,11 +8,12 @@ import {
   TextField,
   Grid,
   Button,
-  CardContent
+  CardContent,
+  Checkbox
 } from "@material-ui/core";
 
-const DEFAULT_STATE = { displayOrder: [] };
-const DEFAULT_FIELD = { label: "" };
+const DEFAULT_STATE = { displayOrder: [], required: [] };
+const DEFAULT_FIELD = { label: "", description: "**Hello World**" };
 
 function addField(formObject, onChange) {
   const fieldName = `field-${formObject.displayOrder.length}`;
@@ -28,6 +30,53 @@ function updateField(formObject, itemName, onChange, fieldName, value) {
     [itemName]: { [fieldName]: { $set: value } }
   });
   onChange(newFormObject);
+}
+
+class LifecycleEditor extends React.Component {
+  // by default create a empty value of the editor state
+  state = { editorState: RichTextEditor.createEmptyValue() };
+
+  componentDidMount() {
+    const { value } = this.props;
+    if (value != null) {
+      console.log("taking editor state from prop");
+      this.setState({
+        editorState: RichTextEditor.createValueFromString(value, "markdown")
+      });
+    }
+  }
+
+  // THIS component will not be able to handle a change of the value prop!!!
+  // can be implemented with
+  /// componentWillReceiveProps()
+  // or with a key in the pparent
+
+  onChange = editorState => {
+    this.setState({ editorState });
+    if (this.props.onChange) {
+      this.props.onChange(editorState.toString("markdown"));
+    }
+  };
+
+  render() {
+    return (
+      <RichTextEditor value={this.state.editorState} onChange={this.onChange} />
+    );
+  }
+}
+
+function setRequired(formObject, itemName, onChange, value) {
+  if (value) {
+    const newFormObject = update(formObject, {
+      required: { $push: [itemName] }
+    });
+    onChange(newFormObject);
+  } else {
+    const newFormObject = update(formObject, {
+      required: { $splice: [[formObject.required.indexOf(itemName)]] }
+    });
+    onChange(newFormObject);
+  }
 }
 
 function FieldEditor({ itemName, formObject, onChange }) {
@@ -48,6 +97,19 @@ function FieldEditor({ itemName, formObject, onChange }) {
             )
           }
           margin="normal"
+        />
+        <LifecycleEditor
+          value={formObject[itemName].description}
+          onChange={val =>
+            updateField(formObject, itemName, onChange, "description", val)
+          }
+        />
+        <Checkbox
+          label="required"
+          onChange={evt =>
+            setRequired(formObject, itemName, onChange, evt.target.checked)
+          }
+          checked={formObject.required.indexOf(itemName) !== -1}
         />
       </CardContent>
     </Card>

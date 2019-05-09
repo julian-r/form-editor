@@ -7,6 +7,7 @@ class App extends React.Component {
   state = { editor: null };
 
   onEditorChange = value => {
+    console.log(value)
     this.setState({ editor: value });
   };
 
