@@ -73,7 +73,7 @@ function setRequired(formObject, itemName, onChange, value) {
     onChange(newFormObject);
   } else {
     const newFormObject = update(formObject, {
-      required: { $splice: [[formObject.required.indexOf(itemName)]] }
+      required: { $splice: [[formObject.required.indexOf(itemName), 1, 0]] }
     });
     onChange(newFormObject);
   }
