@@ -1,6 +1,7 @@
 import React from "react";
 import update from "immutability-helper";
 import RichTextEditor from "react-rte";
+// import slugify from 'slugify';
 
 import {
   Card,
@@ -79,6 +80,7 @@ const styles = (theme) => ({
   }
 })
 
+// let timerID = null;
 const DEFAULT_STATE = { displayOrder: [], required: [] };
 // const DEFAULT_FIELD = { title: "", description: "**Hello World**" };
 
@@ -95,13 +97,13 @@ const FIELDS = {
     title: "Date",
     schema: { type: "string", title: "", description: "**Hello World**", format: "date" }
   },
-  tel: {
+  "telephone-number": {
     title: "Telephone number",
     schema: { type: "string", title: "", description: "**Hello World**", format: "telephone-number" }
   },
   number: {
     title: "Number",
-    schema: { type: "number", title: "", description: "**Hello World**" }
+    schema: { type: "number", title: "", description: "**Hello World**", format: "number" }
   },
   url: {
     title: "URL",
@@ -109,11 +111,11 @@ const FIELDS = {
   },
   description: {
     title: "Description Text",
-    schema: { type: "text", title: "", description: "**Hello World**" }
+    schema: { type: "text", title: "", description: "**Hello World**", format: "description" }
   },
   radio: {
     title: "Radio",
-    schema: { type: "string", title: "", enum: ["value A", "value B", "value C"], descriptions: ["Rich text for A", "Rich text for B", "Rich text for C"] }
+    schema: { type: "string", title: "", enum: ["value A", "value B", "value C"], descriptions: ["Rich text for A", "Rich text for B", "Rich text for C"], format: "radio" }
   },
   checkbox: {
     title: "Checkbox",
@@ -121,7 +123,7 @@ const FIELDS = {
   },
   dropdown: {
     title: "Dropdown",
-    schema: { type: "string", title: "", enum: ["value A", "value B"], descriptions: ["Rich text for A", "Rich text for B"] }
+    schema: { type: "string", title: "", enum: ["value A", "value B"], descriptions: ["Rich text for A", "Rich text for B"], format: "dropdown" }
   }
 }
 
@@ -143,6 +145,23 @@ function updateField(formObject, itemName, onChange, fieldName, value) {
   });
 
   onChange(newFormObject);
+
+  // const newItemName = slugify(value);
+  // if(itemName !== newItemName) {
+
+  //     const newFormObject = update(formObject, {
+  //       [newItemName]: { $set: formObject[itemName] },
+  //       $unset: [itemName],
+  //       displayOrder: {
+  //         $splice: [[formObject.required.indexOf(itemName), 1, newItemName]],
+  //       }
+  //     });
+    
+  //     onChange(newFormObject); 
+   
+  // }
+
+  
 }
 
 function removeField(formObject, fieldName, onChange) {
@@ -204,6 +223,7 @@ function setRequired(formObject, itemName, onChange, value) {
 
 const TitleField = ({formObject, itemName, onChange, classes}) => {
   return <TextField
+  autoFocus
   label="Label"
   value={formObject[itemName].title}
   onChange={evt =>
@@ -523,13 +543,15 @@ class RichField extends React.Component {
 
 const FieldEditor = withStyles(styles)(withTheme()(({ itemName, formObject, onChange, classes }) => {
   const isDesciption = formObject[itemName].hasOwnProperty('desciption');
+
+  const getSchema = FIELDS[formObject[itemName].format] || FIELDS.default;
   
   return (
     <Card className={classes.field}>
-      <CardHeader className={classes.fieldHeader} title={itemName} />
+      <CardHeader className={classes.fieldHeader} title={`${getSchema.title}: ${itemName}`} />
       <CardContent className={classes.fieldContent}>
 
-        <TitleField 
+        <TitleField
           formObject={formObject} 
           itemName={itemName} 
           onChange={val =>
