@@ -119,7 +119,7 @@ const FIELDS = {
   },
   checkbox: {
     title: "Checkbox",
-    schema: { type: "boolean", title: "" }
+    schema: { type: "boolean", title: "", format: "checkbox" }
   },
   dropdown: {
     title: "Dropdown",
