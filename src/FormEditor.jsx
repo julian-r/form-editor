@@ -80,132 +80,100 @@ const styles = theme => ({
   }
 });
 
-// let timerID = null;
 const DEFAULT_STATE = { displayOrder: [], required: [] };
-// const DEFAULT_FIELD = { title: "", description: "**Hello World**" };
 
 const FIELDS = {
   default: {
     title: 'Text',
-    schema: { type: 'string', title: '', name: '', description: '**Hello World**' }
-  },
-  email: {
-    title: 'Email',
-    schema: {
-      _type: 'email',
-      type: 'string',
-      title: '',
-      name: '',
-      description: '**Hello World**',
-      format: 'email'
-    }
-  },
-  date: {
-    title: 'Date',
-    schema: {
-      _type: 'date',
-      type: 'string',
-      title: '',
-      name: '',
-      description: '**Hello World**',
-      format: 'date'
-    }
-  },
-  'telephone-number': {
-    title: 'Telephone number',
-    schema: {
-      _type: 'telephone-number',
-      type: 'string',
-      title: '',
-      name: '',
-      description: '**Hello World**',
-      format: 'telephone-number'
-    }
-  },
-  number: {
-    title: 'Number',
-    schema: { _type: 'number', type: 'number', title: '', name: '', description: '**Hello World**' }
-  },
-  url: {
-    title: 'URL',
-    schema: {
-      _type: 'url',
-      type: 'string',
-      title: '',
-      name: '',
-      description: '**Hello World**',
-      format: 'url'
-    }
-  },
-  description: {
-    title: 'Description Text',
-    schema: {
-      _type: 'description',
-      type: 'text',
-      title: '',
-      name: '',
-      description: '**Hello World**'
-    }
-  },
-  radio: {
-    title: 'Radio',
-    schema: {
-      _type: 'radio',
-      type: 'string',
-      title: '',
-      name: '',
-      enum: ['value A', 'value B', 'value C'],
-      descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
-    }
-  },
-  checkbox: {
-    title: 'Checkbox',
-    schema: { _type: 'checkbox', type: 'boolean', title: '', name: '' }
-  },
-  dropdown: {
-    title: 'Dropdown',
-    schema: {
-      _type: 'dropdown',
-      type: 'string',
-      title: '',
-      name: '',
-      enum: ['value A', 'value B'],
-      descriptions: ['Rich text for A', 'Rich text for B']
-    }
+    schema: { type: 'string', title: '', name: '' }
   }
+  // email: {
+  //   title: 'Email',
+  //   schema: {
+  //     _type: 'email',
+  //     type: 'string',
+  //     title: '',
+  //     description: '**Hello World**',
+  //     format: 'email'
+  //   }
+  // },
+  // date: {
+  //   title: 'Date',
+  //   schema: {
+  //     _type: 'date',
+  //     type: 'string',
+  //     title: '',
+  //     description: '**Hello World**',
+  //     format: 'date'
+  //   }
+  // },
+  // 'telephone-number': {
+  //   title: 'Telephone number',
+  //   schema: {
+  //     _type: 'telephone-number',
+  //     type: 'string',
+  //     title: '',
+  //     description: '**Hello World**',
+  //     format: 'telephone-number'
+  //   }
+  // },
+  // number: {
+  //   title: 'Number',
+  //   schema: { _type: 'number', type: 'number', title: '', name: '', description: '**Hello World**' }
+  // },
+  // url: {
+  //   title: 'URL',
+  //   schema: {
+  //     _type: 'url',
+  //     type: 'string',
+  //     title: '',
+  //     format: 'url'
+  //   }
+  // },
+  // description: {
+  //   title: 'Description Text',
+  //   schema: {
+  //     _type: 'description',
+  //     type: 'text',
+  //     description: '**Hello World**'
+  //   }
+  // },
+  // radio: {
+  //   title: 'Radio',
+  //   schema: {
+  //     _type: 'radio',
+  //     type: 'string',
+  //     enum: ['value A', 'value B', 'value C'],
+  //     descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
+  //   }
+  // },
+  // checkbox: {
+  //   title: 'Checkbox',
+  //   schema: { _type: 'checkbox', type: 'boolean', title: '', name: '' }
+  // },
+  // dropdown: {
+  //   title: 'Dropdown',
+  //   schema: {
+  //     _type: 'dropdown',
+  //     type: 'string',
+  //     title: '',
+  //     enum: ['value A', 'value B'],
+  //     descriptions: ['Text for A', 'Text for B']
+  //   }
+  // }
 };
 
 function addField(formObject, schema, onChange) {
-  const fieldName = `field-${formObject.displayOrder.length + 1}`;
+  const fieldName = `field-${new Date().getTime()}`;
+
+  const newItem = update(schema, { _id: { $set: fieldName } });
+
   const newFormObject = update(formObject, {
-    [fieldName]: { $set: schema },
+    [fieldName]: { $set: newItem },
     displayOrder: { $push: [fieldName] }
   });
 
   onChange(newFormObject);
-}
-
-function updateField(formObject, itemName, onChange, fieldName, value) {
-  const newFormObject = update(formObject, {
-    [itemName]: { [fieldName]: { $set: value } }
-  });
-
-  onChange(newFormObject);
-
-  // const newItemName = slugify(value);
-  // if(itemName !== newItemName) {
-
-  //     const newFormObject = update(formObject, {
-  //       [newItemName]: { $set: formObject[itemName] },
-  //       $unset: [itemName],
-  //       displayOrder: {
-  //         $splice: [[formObject.required.indexOf(itemName), 1, newItemName]],
-  //       }
-  //     });
-
-  //     onChange(newFormObject);
-
-  // }
 }
 
 function removeField(formObject, fieldName, onChange) {
@@ -261,31 +229,6 @@ function setRequired(formObject, itemName, onChange, value) {
   }
 }
 
-const TitleField = ({ formObject, itemName, onChange, classes, ...props }) => {
-  return (
-    <TextField
-      autoFocus
-      label="Label"
-      value={formObject[itemName].title}
-      onChange={evt => onChange(evt.target.value)}
-      fullWidth
-      {...props}
-    />
-  );
-};
-
-const NameField = ({ formObject, itemName, onChange, classes, ...props }) => {
-  return (
-    <TextField
-      autoFocus
-      label="Name"
-      value={formObject[itemName].name}
-      onChange={evt => onChange(slugify(evt.target.value))}
-      fullWidth
-      {...props}
-    />
-  );
-};
 
 const OptionsField = ({ formObject, itemName, onChange, classes }) => {
   const options = formObject[itemName].enum || [];
@@ -608,6 +551,7 @@ class RichField extends React.Component {
 
   componentDidMount() {
     const { value } = this.props;
+
     if (value != null) {
       console.log('taking editor state from prop');
       this.setState({
@@ -646,18 +590,76 @@ class RichField extends React.Component {
   }
 }
 
-const FieldEditor = withStyles(styles)(
-  withTheme()(({ itemName, formObject, onChange, classes }) => {
-    const isDesciption = formObject[itemName].hasOwnProperty('desciption');
+function updateField(formObject, itemName, onChange, fieldName, value) {
+  const newFormObject = update(formObject, {
+    [itemName]: { [fieldName]: { $set: value } }
+  });
 
+  onChange(newFormObject);
+
+  // const newItemName = slugify(value);
+  // if(itemName !== newItemName) {
+
+  //     const newFormObject = update(formObject, {
+  //       [newItemName]: { $set: formObject[itemName] },
+  //       $unset: [itemName],
+  //       displayOrder: {
+  //         $splice: [[formObject.required.indexOf(itemName), 1, newItemName]],
+  //       }
+  //     });
+
+  //     onChange(newFormObject);
+
+  // }
+}
+
+class FieldEditor extends React.Component {
+  handleTitleChange = evt => {
+    const newFormObject = update(this.props.formObject, {
+      [this.props.itemName]: { title: { $set: evt.target.value } }
+    });
+
+    this.props.onChange(newFormObject);
+  };
+
+  handleChangName = evt => {
+    const newItemName = evt.target.value;
+    const { itemName, formObject, onChange } = this.props;
+
+    const newFormObject = update(formObject, {
+      [newItemName]: { $set: formObject[itemName] },
+      $unset: [itemName],
+      displayOrder: {
+        $splice: [[formObject.displayOrder.indexOf(itemName), 1, newItemName]]
+      },
+      required: {
+        $splice: [[formObject.required.indexOf(itemName), 1, newItemName]]
+      }
+    });
+
+    onChange(newFormObject);
+
+    // const newFormObject = update(this.props.formObject, {
+    //   [this.props.itemName]: { title: { $set: evt.target.value } }
+    // });
+    // this.props.onChange(newFormObject);
+  };
+
+  componentDidMount() {
+    console.log('mounted new comp');
+  }
+
+  render() {
+    const { itemName, formObject, onChange, classes } = this.props;
     const getSchema = FIELDS[formObject[itemName]._type] || FIELDS.default;
-    const isRichTitle = formObject[itemName]._type === 'description';
 
+    const title = formObject[itemName].title;
+    const name = itemName;
     return (
-      <Card className={classes.field}>
-        <CardHeader className={classes.fieldHeader} title={`${getSchema.title}: ${itemName}`} />
+      <Card>
+        <CardHeader className={classes.fieldHeader} subheader={`${getSchema.title}: ${itemName}`} />
         <CardContent className={classes.fieldContent}>
-          {isRichTitle ? (
+          {/* {isRichTitle ? (
             <RichField
               label={'Label'}
               value={formObject[itemName].title}
@@ -670,17 +672,32 @@ const FieldEditor = withStyles(styles)(
               onChange={val => updateField(formObject, itemName, onChange, 'title', val)}
               classes={classes}
             />
-          )}
+          )} */}
 
-          <NameField
+          <TextField
+            label="Title"
+            value={title}
+            onChange={this.handleTitleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Name"
+            value={itemName}
+            onChange={this.handleChangName}
+            fullWidth
+            margin="normal"
+          />
+
+          {/* <NameField
             formObject={formObject}
             itemName={itemName}
             onChange={val => updateField(formObject, itemName, onChange, 'name', val)}
             classes={classes}
             margin="normal"
-          />
+          /> */}
 
-          {isDesciption && (
+          {/* {isDesciption && (
             <RichField
               value={formObject[itemName].description}
               onChange={val => updateField(formObject, itemName, onChange, 'description', val)}
@@ -692,7 +709,7 @@ const FieldEditor = withStyles(styles)(
             itemName={itemName}
             onChange={onChange}
             classes={classes}
-          />
+          /> */}
         </CardContent>
         <CardActions className={classes.fieldActions}>
           <FormControlLabel
@@ -715,11 +732,12 @@ const FieldEditor = withStyles(styles)(
         </CardActions>
       </Card>
     );
-  })
-);
+  }
+}
 
-export default withStyles(styles)(
-  withTheme()(function FormEditor({ onChange, value, classes }) {
+class FormEditor extends React.Component {
+  render() {
+    const { onChange, value, classes } = this.props;
     const formObject = value || DEFAULT_STATE;
     const { displayOrder } = formObject;
 
@@ -731,7 +749,11 @@ export default withStyles(styles)(
               {provided => (
                 <div {...provided.draggableProps} ref={provided.innerRef}>
                   {(displayOrder || []).map((itemName, index) => (
-                    <Draggable key={itemName} draggableId={itemName} index={index}>
+                    <Draggable
+                      key={formObject[itemName]._id}
+                      draggableId={formObject[itemName]._id}
+                      index={index}
+                    >
                       {provided => (
                         <div
                           {...provided.draggableProps}
@@ -743,6 +765,7 @@ export default withStyles(styles)(
                             formObject={formObject}
                             itemName={itemName}
                             onChange={onChange}
+                            classes={classes}
                           />
                         </div>
                       )}
@@ -762,5 +785,7 @@ export default withStyles(styles)(
         </Grid>
       </Grid>
     );
-  })
-);
+  }
+}
+
+export default withStyles(styles)(withTheme()(FormEditor));

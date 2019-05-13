@@ -86,7 +86,7 @@ class App extends React.Component {
   // state = { editor: DEMO_STATE };
 
   onEditorChange = value => {
-    console.log(value)
+    // console.log(value)
     this.setState({ editor: value });
   };
 
