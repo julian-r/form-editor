@@ -1,7 +1,7 @@
 import React from "react";
 import update from "immutability-helper";
 import RichTextEditor from "react-rte";
-// import slugify from 'slugify';
+import slugify from 'slugify';
 
 import {
   Card,
@@ -87,43 +87,43 @@ const DEFAULT_STATE = { displayOrder: [], required: [] };
 const FIELDS = {
   default: {
     title: "Text",
-    schema: { type: "string", title: "", description: "**Hello World**" }
+    schema: { type: "string", title: "", name: "", description: "**Hello World**" }
   },
   email: {
     title: "Email",
-    schema: { type: "string", title: "", description: "**Hello World**", format: "email" }
+    schema: { _type: "email", type: "string", title: "", name: "", description: "**Hello World**", format: "email" }
   },
   date: {
     title: "Date",
-    schema: { type: "string", title: "", description: "**Hello World**", format: "date" }
+    schema: { _type: "date", type: "string", title: "", name: "", description: "**Hello World**", format: "date" }
   },
   "telephone-number": {
     title: "Telephone number",
-    schema: { type: "string", title: "", description: "**Hello World**", format: "telephone-number" }
+    schema: { _type: "telephone-number", type: "string", title: "", name: "", description: "**Hello World**", format: "telephone-number" }
   },
   number: {
     title: "Number",
-    schema: { type: "number", title: "", description: "**Hello World**", format: "number" }
+    schema: { _type: "number", type: "number", title: "", name: "", description: "**Hello World**" }
   },
   url: {
     title: "URL",
-    schema: { type: "string", title: "", description: "**Hello World**", format: "url" }
+    schema: { _type: "url", type: "string", title: "", name: "", description: "**Hello World**", format: "url" }
   },
   description: {
     title: "Description Text",
-    schema: { type: "text", title: "", description: "**Hello World**", format: "description" }
+    schema: { _type: "description", type: "text", title: "", name: "", description: "**Hello World**" }
   },
   radio: {
     title: "Radio",
-    schema: { type: "string", title: "", enum: ["value A", "value B", "value C"], descriptions: ["Rich text for A", "Rich text for B", "Rich text for C"], format: "radio" }
+    schema: { _type: "radio", type: "string", title: "", name: "", enum: ["value A", "value B", "value C"], descriptions: ["Rich text for A", "Rich text for B", "Rich text for C"] }
   },
   checkbox: {
     title: "Checkbox",
-    schema: { type: "boolean", title: "", format: "checkbox" }
+    schema: { _type: "checkbox", type: "boolean", title: "", name: "" }
   },
   dropdown: {
     title: "Dropdown",
-    schema: { type: "string", title: "", enum: ["value A", "value B"], descriptions: ["Rich text for A", "Rich text for B"], format: "dropdown" }
+    schema: { _type: "dropdown", type: "string", title: "", name: "", enum: ["value A", "value B"], descriptions: ["Rich text for A", "Rich text for B"] }
   }
 }
 
@@ -221,7 +221,7 @@ function setRequired(formObject, itemName, onChange, value) {
   }
 }
 
-const TitleField = ({formObject, itemName, onChange, classes}) => {
+const TitleField = ({formObject, itemName, onChange, classes, ...props}) => {
   return <TextField
   autoFocus
   label="Label"
@@ -230,6 +230,20 @@ const TitleField = ({formObject, itemName, onChange, classes}) => {
     onChange(evt.target.value)
   }
   fullWidth
+  {...props}
+/>
+}
+
+const NameField = ({formObject, itemName, onChange, classes, ...props}) => {
+  return <TextField
+  autoFocus
+  label="Name"
+  value={formObject[itemName].name}
+  onChange={evt =>
+    onChange(slugify(evt.target.value))
+  }
+  fullWidth
+  {...props}
 />
 }
 
@@ -238,6 +252,7 @@ const OptionsField = ({formObject, itemName, onChange, classes}) => {
   const descriptions = formObject[itemName].descriptions || [];
   const isEnum = formObject[itemName].hasOwnProperty('enum');
   const isDesciptions = formObject[itemName].hasOwnProperty('descriptions');
+  const isRich = formObject[itemName]._type !== 'dropdown';
 
   function addOption(formObject, itemName, onChange) {
     const newFormObject = update(formObject, {
@@ -342,7 +357,7 @@ const OptionsField = ({formObject, itemName, onChange, classes}) => {
               fullWidth
               margin="normal"
             />}
-            {isDesciptions && <RichField
+            {isRich ? (isDesciptions && <RichField
               key={option}
               label={`Description`}
               value={descriptions[index]}
@@ -357,7 +372,24 @@ const OptionsField = ({formObject, itemName, onChange, classes}) => {
                   })
                 )
               }
-            />}
+            />) : <TextField
+            label={`Description`}
+            multiline
+            value={descriptions[index]}
+            onChange={evt =>
+              updateOption(
+                formObject,
+                itemName,
+                onChange,
+                "descriptions",
+                update(descriptions, {
+                  $splice: [[index, 1, evt.target.value]]
+                })
+              )
+            }
+            fullWidth
+            margin="normal"
+          />}
             <div className={classes.optionsActions}>
               <IconButton disabled={isUp} onClick={() => orderOption(formObject, itemName, onChange, index, 'up')}><ArrowUpwardIcon /></IconButton>
               <IconButton disabled={isDown} onClick={() => orderOption(formObject, itemName, onChange, index, 'down')}><ArrowDownwardIcon /></IconButton>
@@ -544,14 +576,21 @@ class RichField extends React.Component {
 const FieldEditor = withStyles(styles)(withTheme()(({ itemName, formObject, onChange, classes }) => {
   const isDesciption = formObject[itemName].hasOwnProperty('desciption');
 
-  const getSchema = FIELDS[formObject[itemName].format] || FIELDS.default;
+  const getSchema = FIELDS[formObject[itemName]._type] || FIELDS.default;
+  const isRichTitle = formObject[itemName]._type === 'description';
   
   return (
     <Card className={classes.field}>
       <CardHeader className={classes.fieldHeader} title={`${getSchema.title}: ${itemName}`} />
       <CardContent className={classes.fieldContent}>
 
-        <TitleField
+        {isRichTitle ? <RichField
+          label={"Label"}
+          value={formObject[itemName].title}
+          onChange={val =>
+            updateField(formObject, itemName, onChange, "title", val)
+          }
+        /> : <TitleField
           formObject={formObject} 
           itemName={itemName} 
           onChange={val =>
@@ -564,6 +603,22 @@ const FieldEditor = withStyles(styles)(withTheme()(({ itemName, formObject, onCh
             )
           }
           classes={classes}
+        />}
+
+        <NameField
+          formObject={formObject} 
+          itemName={itemName} 
+          onChange={val =>
+            updateField(
+              formObject,
+              itemName,
+              onChange,
+              "name",
+              val
+            )
+          }
+          classes={classes}
+          margin="normal"
         />
 
         {isDesciption && <RichField
