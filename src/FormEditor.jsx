@@ -1,7 +1,7 @@
-import React from "react";
-import update from "immutability-helper";
-import RichTextEditor from "react-rte";
-import slugify from "slugify";
+import React from 'react';
+import update from 'immutability-helper';
+import RichTextEditor from 'react-rte';
+import slugify from 'slugify';
 
 import {
   Card,
@@ -22,18 +22,18 @@ import {
   Typography,
   FormControl,
   InputLabel
-} from "@material-ui/core";
+} from '@material-ui/core';
 
-import DeleteIcon from "@material-ui/icons/Delete";
-import AddIcon from "@material-ui/icons/Add";
-import ClearIcon from "@material-ui/icons/Clear";
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
-import { withStyles, withTheme } from "@material-ui/core/styles";
+import DeleteIcon from '@material-ui/icons/Delete';
+import AddIcon from '@material-ui/icons/Add';
+import ClearIcon from '@material-ui/icons/Clear';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-update.extend("$unset", function(keysToRemove, original) {
+update.extend('$unset', function(keysToRemove, original) {
   var copy = Object.assign({}, original);
   for (const key of keysToRemove) delete copy[key];
   return copy;
@@ -41,20 +41,20 @@ update.extend("$unset", function(keysToRemove, original) {
 
 const styles = theme => ({
   field: {
-    overflow: "visible"
+    overflow: 'visible'
   },
   fieldWrapper: {
     marginBottom: theme.spacing.unit * 2
   },
   fieldHeader: {
-    backgroundColor: theme.palette.grey["100"]
+    backgroundColor: theme.palette.grey['100']
   },
   fieldContent: {
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`
   },
   fieldActions: {
     padding: `0 ${theme.spacing.unit * 2}px ${theme.spacing.unit}px`,
-    justifyContent: "space-between"
+    justifyContent: 'space-between'
   },
   fieldItem: {
     marginTop: theme.spacing.unit * 3,
@@ -70,13 +70,13 @@ const styles = theme => ({
   options: {
     boxShadow: theme.shadows[1],
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-    "&:not(:last-child)": {
+    '&:not(:last-child)': {
       marginBottom: theme.spacing.unit * 2
     }
   },
   optionsActions: {
-    display: "flex",
-    justifyContent: "space-between"
+    display: 'flex',
+    justifyContent: 'space-between'
   }
 });
 
@@ -86,85 +86,91 @@ const DEFAULT_STATE = { displayOrder: [], required: [] };
 
 const FIELDS = {
   default: {
-    title: "Text",
-    schema: { type: "string", title: "", description: "**Hello World**" }
+    title: 'Text',
+    schema: { type: 'string', title: '', name: '', description: '**Hello World**' }
   },
   email: {
-    title: "Email",
+    title: 'Email',
     schema: {
-      type: "string",
-      title: "",
-      description: "**Hello World**",
-      format: "email"
+      _type: 'email',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'email'
     }
   },
   date: {
-    title: "Date",
+    title: 'Date',
     schema: {
-      type: "string",
-      title: "",
-      description: "**Hello World**",
-      format: "date"
+      _type: 'date',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'date'
     }
   },
-  "telephone-number": {
-    title: "Telephone number",
+  'telephone-number': {
+    title: 'Telephone number',
     schema: {
-      type: "string",
-      title: "",
-      description: "**Hello World**",
-      format: "telephone-number"
+      _type: 'telephone-number',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'telephone-number'
     }
   },
   number: {
-    title: "Number",
-    schema: {
-      type: "number",
-      title: "",
-      description: "**Hello World**",
-      format: "number"
-    }
+    title: 'Number',
+    schema: { _type: 'number', type: 'number', title: '', name: '', description: '**Hello World**' }
   },
   url: {
-    title: "URL",
+    title: 'URL',
     schema: {
-      type: "string",
-      title: "",
-      description: "**Hello World**",
-      format: "url"
+      _type: 'url',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'url'
     }
   },
   description: {
-    title: "Description Text",
+    title: 'Description Text',
     schema: {
-      type: "text",
-      title: "",
-      description: "**Hello World**",
-      format: "description"
+      _type: 'description',
+      type: 'text',
+      title: '',
+      name: '',
+      description: '**Hello World**'
     }
   },
   radio: {
-    title: "Radio",
+    title: 'Radio',
     schema: {
-      type: "string",
-      title: "",
-      enum: ["value A", "value B", "value C"],
-      descriptions: ["Rich text for A", "Rich text for B", "Rich text for C"],
-      format: "radio"
+      _type: 'radio',
+      type: 'string',
+      title: '',
+      name: '',
+      enum: ['value A', 'value B', 'value C'],
+      descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
     }
   },
   checkbox: {
-    title: "Checkbox",
-    schema: { type: "boolean", title: "", format: "checkbox" }
+    title: 'Checkbox',
+    schema: { _type: 'checkbox', type: 'boolean', title: '', name: '' }
   },
   dropdown: {
-    title: "Dropdown",
+    title: 'Dropdown',
     schema: {
-      type: "string",
-      title: "",
-      enum: ["value A", "value B"],
-      descriptions: ["Rich text for A", "Rich text for B"],
-      format: "dropdown"
+      _type: 'dropdown',
+      type: 'string',
+      title: '',
+      name: '',
+      enum: ['value A', 'value B'],
+      descriptions: ['Rich text for A', 'Rich text for B']
     }
   }
 };
@@ -180,36 +186,32 @@ function addField(formObject, schema, onChange) {
 }
 
 function updateField(formObject, itemName, onChange, fieldName, value) {
-  // if (fieldName === "title") {
-  //   const newItemName = slugify(value);
-  //   if (newItemName !== itemName) {
-  //     const newFormObject = update(formObject, {
-  //       [newItemName]: {
-  //         $set: update(formObject[itemName], { title: { $set: value } })
-  //       },
-  //       $unset: [itemName],
-  //       displayOrder: {
-  //         $splice: [[formObject.displayOrder.indexOf(itemName), 1, newItemName]]
-  //       }
-  //     });
-
-  //     onChange(newFormObject);
-  //   }
-  // } else {
   const newFormObject = update(formObject, {
     [itemName]: { [fieldName]: { $set: value } }
   });
 
   onChange(newFormObject);
+
+  // const newItemName = slugify(value);
+  // if(itemName !== newItemName) {
+
+  //     const newFormObject = update(formObject, {
+  //       [newItemName]: { $set: formObject[itemName] },
+  //       $unset: [itemName],
+  //       displayOrder: {
+  //         $splice: [[formObject.required.indexOf(itemName), 1, newItemName]],
+  //       }
+  //     });
+
+  //     onChange(newFormObject);
+
   // }
 }
 
 function removeField(formObject, fieldName, onChange) {
   const newFormObject = update(formObject, {
     $unset: [fieldName],
-    displayOrder: {
-      $splice: [[formObject.displayOrder.indexOf(fieldName), 1]]
-    },
+    displayOrder: { $splice: [[formObject.displayOrder.indexOf(fieldName), 1]] },
     required: { $splice: [[formObject.required.indexOf(fieldName), 1]] }
   });
 
@@ -223,10 +225,7 @@ function orderField(formObject, result, onChange) {
     return;
   }
 
-  if (
-    destination.droppableId === source.droppableId &&
-    destination.index === source.index
-  ) {
+  if (destination.droppableId === source.droppableId && destination.index === source.index) {
     return;
   }
 
@@ -262,7 +261,7 @@ function setRequired(formObject, itemName, onChange, value) {
   }
 }
 
-const TitleField = ({ formObject, itemName, onChange, classes }) => {
+const TitleField = ({ formObject, itemName, onChange, classes, ...props }) => {
   return (
     <TextField
       autoFocus
@@ -270,6 +269,20 @@ const TitleField = ({ formObject, itemName, onChange, classes }) => {
       value={formObject[itemName].title}
       onChange={evt => onChange(evt.target.value)}
       fullWidth
+      {...props}
+    />
+  );
+};
+
+const NameField = ({ formObject, itemName, onChange, classes, ...props }) => {
+  return (
+    <TextField
+      autoFocus
+      label="Name"
+      value={formObject[itemName].name}
+      onChange={evt => onChange(slugify(evt.target.value))}
+      fullWidth
+      {...props}
     />
   );
 };
@@ -277,17 +290,18 @@ const TitleField = ({ formObject, itemName, onChange, classes }) => {
 const OptionsField = ({ formObject, itemName, onChange, classes }) => {
   const options = formObject[itemName].enum || [];
   const descriptions = formObject[itemName].descriptions || [];
-  const isEnum = formObject[itemName].hasOwnProperty("enum");
-  const isDesciptions = formObject[itemName].hasOwnProperty("descriptions");
+  const isEnum = formObject[itemName].hasOwnProperty('enum');
+  const isDesciptions = formObject[itemName].hasOwnProperty('descriptions');
+  const isRich = formObject[itemName]._type !== 'dropdown';
 
   function addOption(formObject, itemName, onChange) {
     const newFormObject = update(formObject, {
       [itemName]: {
         enum: {
-          $push: [""]
+          $push: ['']
         },
         descriptions: {
-          $push: [""]
+          $push: ['']
         }
       }
     });
@@ -305,11 +319,7 @@ const OptionsField = ({ formObject, itemName, onChange, classes }) => {
 
   function orderOption(formObject, itemName, onChange, sourceIndex, direction) {
     const destinationIndex =
-      direction === "down"
-        ? sourceIndex + 1
-        : direction === "up"
-        ? sourceIndex - 1
-        : sourceIndex;
+      direction === 'down' ? sourceIndex + 1 : direction === 'up' ? sourceIndex - 1 : sourceIndex;
 
     const orderEnum = formObject => {
       const newEnum = [...formObject[itemName].enum];
@@ -323,10 +333,8 @@ const OptionsField = ({ formObject, itemName, onChange, classes }) => {
     const orderDescriptions = formObject => {
       const newDescriptions = [...formObject[itemName].descriptions];
 
-      newDescriptions[sourceIndex] =
-        formObject[itemName].descriptions[destinationIndex];
-      newDescriptions[destinationIndex] =
-        formObject[itemName].descriptions[sourceIndex];
+      newDescriptions[sourceIndex] = formObject[itemName].descriptions[destinationIndex];
+      newDescriptions[destinationIndex] = formObject[itemName].descriptions[sourceIndex];
 
       return newDescriptions;
     };
@@ -382,7 +390,7 @@ const OptionsField = ({ formObject, itemName, onChange, classes }) => {
                         formObject,
                         itemName,
                         onChange,
-                        "enum",
+                        'enum',
                         update(options, {
                           $splice: [[index, 1, evt.target.value]]
                         })
@@ -392,46 +400,61 @@ const OptionsField = ({ formObject, itemName, onChange, classes }) => {
                     margin="normal"
                   />
                 )}
-                {isDesciptions && (
-                  <RichField
-                    key={option}
+                {isRich ? (
+                  isDesciptions && (
+                    <RichField
+                      key={option}
+                      label={`Description`}
+                      value={descriptions[index]}
+                      onChange={val =>
+                        updateOption(
+                          formObject,
+                          itemName,
+                          onChange,
+                          'descriptions',
+                          update(descriptions, {
+                            $splice: [[index, 1, val]]
+                          })
+                        )
+                      }
+                    />
+                  )
+                ) : (
+                  <TextField
                     label={`Description`}
+                    multiline
                     value={descriptions[index]}
-                    onChange={val =>
+                    onChange={evt =>
                       updateOption(
                         formObject,
                         itemName,
                         onChange,
-                        "descriptions",
+                        'descriptions',
                         update(descriptions, {
-                          $splice: [[index, 1, val]]
+                          $splice: [[index, 1, evt.target.value]]
                         })
                       )
                     }
+                    fullWidth
+                    margin="normal"
                   />
                 )}
                 <div className={classes.optionsActions}>
                   <IconButton
                     disabled={isUp}
-                    onClick={() =>
-                      orderOption(formObject, itemName, onChange, index, "up")
-                    }
+                    onClick={() => orderOption(formObject, itemName, onChange, index, 'up')}
                   >
                     <ArrowUpwardIcon />
                   </IconButton>
                   <IconButton
                     disabled={isDown}
-                    onClick={() =>
-                      orderOption(formObject, itemName, onChange, index, "down")
-                    }
+                    onClick={() => orderOption(formObject, itemName, onChange, index, 'down')}
                   >
                     <ArrowDownwardIcon />
                   </IconButton>
                   <DialogField
                     fieldName={option}
-                    onChange={() =>
-                      removeOption(formObject, itemName, onChange, index)
-                    }
+                    onChange={() => removeOption(formObject, itemName, onChange, index)}
                   >
                     <IconButton>
                       <ClearIcon />
@@ -441,10 +464,8 @@ const OptionsField = ({ formObject, itemName, onChange, classes }) => {
               </div>
             );
           })}
-          <div style={{ textAlign: "center" }}>
-            <IconButton
-              onClick={() => addOption(formObject, itemName, onChange)}
-            >
+          <div style={{ textAlign: 'center' }}>
+            <IconButton onClick={() => addOption(formObject, itemName, onChange)}>
               <AddIcon />
             </IconButton>
           </div>
@@ -528,7 +549,7 @@ class ListFields extends React.Component {
         <Button
           color="primary"
           variant="contained"
-          aria-owns={anchorEl ? "fields-menu" : undefined}
+          aria-owns={anchorEl ? 'fields-menu' : undefined}
           aria-haspopup="true"
           onClick={this.handleClick}
         >
@@ -567,11 +588,11 @@ class RichField extends React.Component {
 
   toolbarConfig = {
     // Optionally specify the groups to display (displayed in the order listed).
-    display: ["INLINE_STYLE_BUTTONS", "BLOCK_TYPE_BUTTONS", "LINK_BUTTONS"],
+    display: ['INLINE_STYLE_BUTTONS', 'BLOCK_TYPE_BUTTONS', 'LINK_BUTTONS'],
     INLINE_STYLE_BUTTONS: [
-      { label: "Bold", style: "BOLD", className: "custom-css-class" },
+      { label: 'Bold', style: 'BOLD', className: 'custom-css-class' },
       // {label: 'Italic', style: 'ITALIC'},
-      { label: "Underline", style: "UNDERLINE" }
+      { label: 'Underline', style: 'UNDERLINE' }
     ]
     // BLOCK_TYPE_DROPDOWN: [
     //   {label: 'Normal', style: 'unstyled'},
@@ -588,9 +609,9 @@ class RichField extends React.Component {
   componentDidMount() {
     const { value } = this.props;
     if (value != null) {
-      console.log("taking editor state from prop");
+      console.log('taking editor state from prop');
       this.setState({
-        editorState: RichTextEditor.createValueFromString(value, "markdown")
+        editorState: RichTextEditor.createValueFromString(value, 'markdown')
       });
     }
   }
@@ -603,7 +624,7 @@ class RichField extends React.Component {
   onChange = editorState => {
     this.setState({ editorState });
     if (this.props.onChange) {
-      this.props.onChange(editorState.toString("markdown"));
+      this.props.onChange(editorState.toString('markdown'));
     }
   };
 
@@ -627,32 +648,42 @@ class RichField extends React.Component {
 
 const FieldEditor = withStyles(styles)(
   withTheme()(({ itemName, formObject, onChange, classes }) => {
-    const isDesciption = formObject[itemName].hasOwnProperty("desciption");
+    const isDesciption = formObject[itemName].hasOwnProperty('desciption');
 
-    const getSchema = FIELDS[formObject[itemName].format] || FIELDS.default;
+    const getSchema = FIELDS[formObject[itemName]._type] || FIELDS.default;
+    const isRichTitle = formObject[itemName]._type === 'description';
 
     return (
       <Card className={classes.field}>
-        <CardHeader
-          className={classes.fieldHeader}
-          title={`${getSchema.title}: ${itemName}`}
-        />
+        <CardHeader className={classes.fieldHeader} title={`${getSchema.title}: ${itemName}`} />
         <CardContent className={classes.fieldContent}>
-          <TitleField
+          {isRichTitle ? (
+            <RichField
+              label={'Label'}
+              value={formObject[itemName].title}
+              onChange={val => updateField(formObject, itemName, onChange, 'title', val)}
+            />
+          ) : (
+            <TitleField
+              formObject={formObject}
+              itemName={itemName}
+              onChange={val => updateField(formObject, itemName, onChange, 'title', val)}
+              classes={classes}
+            />
+          )}
+
+          <NameField
             formObject={formObject}
             itemName={itemName}
-            onChange={val =>
-              updateField(formObject, itemName, onChange, "title", val)
-            }
+            onChange={val => updateField(formObject, itemName, onChange, 'name', val)}
             classes={classes}
+            margin="normal"
           />
 
           {isDesciption && (
             <RichField
               value={formObject[itemName].description}
-              onChange={val =>
-                updateField(formObject, itemName, onChange, "description", val)
-              }
+              onChange={val => updateField(formObject, itemName, onChange, 'description', val)}
             />
           )}
 
@@ -667,18 +698,11 @@ const FieldEditor = withStyles(styles)(
           <FormControlLabel
             control={
               <Checkbox
-                onChange={evt =>
-                  setRequired(
-                    formObject,
-                    itemName,
-                    onChange,
-                    evt.target.checked
-                  )
-                }
+                onChange={evt => setRequired(formObject, itemName, onChange, evt.target.checked)}
                 checked={formObject.required.indexOf(itemName) !== -1}
               />
             }
-            label={"required"}
+            label={'required'}
           />
           <DialogField
             fieldName={itemName}
@@ -702,18 +726,12 @@ export default withStyles(styles)(
     return (
       <Grid container spacing={16}>
         <Grid item xs={12}>
-          <DragDropContext
-            onDragEnd={result => orderField(formObject, result, onChange)}
-          >
-            <Droppable droppableId={"fields"}>
+          <DragDropContext onDragEnd={result => orderField(formObject, result, onChange)}>
+            <Droppable droppableId={'fields'}>
               {provided => (
                 <div {...provided.draggableProps} ref={provided.innerRef}>
                   {(displayOrder || []).map((itemName, index) => (
-                    <Draggable
-                      key={itemName}
-                      draggableId={itemName}
-                      index={index}
-                    >
+                    <Draggable key={itemName} draggableId={itemName} index={index}>
                       {provided => (
                         <div
                           {...provided.draggableProps}
@@ -738,10 +756,7 @@ export default withStyles(styles)(
         </Grid>
 
         <Grid item xs={12}>
-          <ListFields
-            fields={FIELDS}
-            onClick={schema => addField(formObject, schema, onChange)}
-          >
+          <ListFields fields={FIELDS} onClick={schema => addField(formObject, schema, onChange)}>
             Add field
           </ListFields>
         </Grid>
