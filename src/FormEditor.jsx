@@ -1,6 +1,6 @@
-import React from "react";
-import update from "immutability-helper";
-import RichTextEditor from "react-rte";
+import React from 'react';
+import update from 'immutability-helper';
+import RichTextEditor from 'react-rte';
 import slugify from 'slugify';
 
 import {
@@ -22,7 +22,7 @@ import {
   Typography,
   FormControl,
   InputLabel
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
@@ -34,27 +34,27 @@ import { withStyles, withTheme } from '@material-ui/core/styles';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 update.extend('$unset', function(keysToRemove, original) {
-  var copy = Object.assign({}, original)
-  for (const key of keysToRemove) delete copy[key]
-  return copy
+  var copy = Object.assign({}, original);
+  for (const key of keysToRemove) delete copy[key];
+  return copy;
 });
 
-const styles = (theme) => ({
+const styles = theme => ({
   field: {
-    overflow: "visible"
+    overflow: 'visible'
   },
   fieldWrapper: {
     marginBottom: theme.spacing.unit * 2
   },
   fieldHeader: {
-    backgroundColor: theme.palette.grey["100"]
+    backgroundColor: theme.palette.grey['100']
   },
   fieldContent: {
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`
   },
   fieldActions: {
     padding: `0 ${theme.spacing.unit * 2}px ${theme.spacing.unit}px`,
-    justifyContent: "space-between"
+    justifyContent: 'space-between'
   },
   fieldItem: {
     marginTop: theme.spacing.unit * 3,
@@ -70,15 +70,15 @@ const styles = (theme) => ({
   options: {
     boxShadow: theme.shadows[1],
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-    "&:not(:last-child)": {
+    '&:not(:last-child)': {
       marginBottom: theme.spacing.unit * 2
     }
   },
   optionsActions: {
-    display: "flex",
-    justifyContent: "space-between"
+    display: 'flex',
+    justifyContent: 'space-between'
   }
-})
+});
 
 // let timerID = null;
 const DEFAULT_STATE = { displayOrder: [], required: [] };
@@ -86,49 +86,96 @@ const DEFAULT_STATE = { displayOrder: [], required: [] };
 
 const FIELDS = {
   default: {
-    title: "Text",
-    schema: { type: "string", title: "", name: "", description: "**Hello World**" }
+    title: 'Text',
+    schema: { type: 'string', title: '', name: '', description: '**Hello World**' }
   },
   email: {
-    title: "Email",
-    schema: { _type: "email", type: "string", title: "", name: "", description: "**Hello World**", format: "email" }
+    title: 'Email',
+    schema: {
+      _type: 'email',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'email'
+    }
   },
   date: {
-    title: "Date",
-    schema: { _type: "date", type: "string", title: "", name: "", description: "**Hello World**", format: "date" }
+    title: 'Date',
+    schema: {
+      _type: 'date',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'date'
+    }
   },
-  "telephone-number": {
-    title: "Telephone number",
-    schema: { _type: "telephone-number", type: "string", title: "", name: "", description: "**Hello World**", format: "telephone-number" }
+  'telephone-number': {
+    title: 'Telephone number',
+    schema: {
+      _type: 'telephone-number',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'telephone-number'
+    }
   },
   number: {
-    title: "Number",
-    schema: { _type: "number", type: "number", title: "", name: "", description: "**Hello World**" }
+    title: 'Number',
+    schema: { _type: 'number', type: 'number', title: '', name: '', description: '**Hello World**' }
   },
   url: {
-    title: "URL",
-    schema: { _type: "url", type: "string", title: "", name: "", description: "**Hello World**", format: "url" }
+    title: 'URL',
+    schema: {
+      _type: 'url',
+      type: 'string',
+      title: '',
+      name: '',
+      description: '**Hello World**',
+      format: 'url'
+    }
   },
   description: {
-    title: "Description Text",
-    schema: { _type: "description", type: "text", title: "", name: "", description: "**Hello World**" }
+    title: 'Description Text',
+    schema: {
+      _type: 'description',
+      type: 'text',
+      title: '',
+      name: '',
+      description: '**Hello World**'
+    }
   },
   radio: {
-    title: "Radio",
-    schema: { _type: "radio", type: "string", title: "", name: "", enum: ["value A", "value B", "value C"], descriptions: ["Rich text for A", "Rich text for B", "Rich text for C"] }
+    title: 'Radio',
+    schema: {
+      _type: 'radio',
+      type: 'string',
+      title: '',
+      name: '',
+      enum: ['value A', 'value B', 'value C'],
+      descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
+    }
   },
   checkbox: {
-    title: "Checkbox",
-    schema: { _type: "checkbox", type: "boolean", title: "", name: "" }
+    title: 'Checkbox',
+    schema: { _type: 'checkbox', type: 'boolean', title: '', name: '' }
   },
   dropdown: {
-    title: "Dropdown",
-    schema: { _type: "dropdown", type: "string", title: "", name: "", enum: ["value A", "value B"], descriptions: ["Rich text for A", "Rich text for B"] }
+    title: 'Dropdown',
+    schema: {
+      _type: 'dropdown',
+      type: 'string',
+      title: '',
+      name: '',
+      enum: ['value A', 'value B'],
+      descriptions: ['Rich text for A', 'Rich text for B']
+    }
   }
-}
+};
 
 function addField(formObject, schema, onChange) {
-
   const fieldName = `field-${formObject.displayOrder.length + 1}`;
   const newFormObject = update(formObject, {
     [fieldName]: { $set: schema },
@@ -139,7 +186,6 @@ function addField(formObject, schema, onChange) {
 }
 
 function updateField(formObject, itemName, onChange, fieldName, value) {
-
   const newFormObject = update(formObject, {
     [itemName]: { [fieldName]: { $set: value } }
   });
@@ -156,16 +202,13 @@ function updateField(formObject, itemName, onChange, fieldName, value) {
   //         $splice: [[formObject.required.indexOf(itemName), 1, newItemName]],
   //       }
   //     });
-    
-  //     onChange(newFormObject); 
-   
-  // }
 
-  
+  //     onChange(newFormObject);
+
+  // }
 }
 
 function removeField(formObject, fieldName, onChange) {
-
   const newFormObject = update(formObject, {
     $unset: [fieldName],
     displayOrder: { $splice: [[formObject.displayOrder.indexOf(fieldName), 1]] },
@@ -173,41 +216,38 @@ function removeField(formObject, fieldName, onChange) {
   });
 
   onChange(newFormObject);
-
 }
 
 function orderField(formObject, result, onChange) {
   const { destination, source } = result;
 
-  if(!destination) {
+  if (!destination) {
     return;
   }
 
-  if(destination.droppableId === source.droppableId && destination.index === source.index ) {
+  if (destination.droppableId === source.droppableId && destination.index === source.index) {
     return;
   }
 
-  const order = (order) => {
+  const order = order => {
     const newOrder = [...order];
-  
+
     newOrder[source.index] = order[destination.index];
     newOrder[destination.index] = order[source.index];
 
-    return newOrder
-  }
+    return newOrder;
+  };
 
   const newFormObject = update(formObject, {
     displayOrder: {
       $set: order(formObject.displayOrder)
     }
-  })
+  });
 
-  onChange(newFormObject)
-
+  onChange(newFormObject);
 }
 
 function setRequired(formObject, itemName, onChange, value) {
-
   if (value) {
     const newFormObject = update(formObject, {
       required: { $push: [itemName] }
@@ -221,33 +261,33 @@ function setRequired(formObject, itemName, onChange, value) {
   }
 }
 
-const TitleField = ({formObject, itemName, onChange, classes, ...props}) => {
-  return <TextField
-  autoFocus
-  label="Label"
-  value={formObject[itemName].title}
-  onChange={evt =>
-    onChange(evt.target.value)
-  }
-  fullWidth
-  {...props}
-/>
-}
+const TitleField = ({ formObject, itemName, onChange, classes, ...props }) => {
+  return (
+    <TextField
+      autoFocus
+      label="Label"
+      value={formObject[itemName].title}
+      onChange={evt => onChange(evt.target.value)}
+      fullWidth
+      {...props}
+    />
+  );
+};
 
-const NameField = ({formObject, itemName, onChange, classes, ...props}) => {
-  return <TextField
-  autoFocus
-  label="Name"
-  value={formObject[itemName].name}
-  onChange={evt =>
-    onChange(slugify(evt.target.value))
-  }
-  fullWidth
-  {...props}
-/>
-}
+const NameField = ({ formObject, itemName, onChange, classes, ...props }) => {
+  return (
+    <TextField
+      autoFocus
+      label="Name"
+      value={formObject[itemName].name}
+      onChange={evt => onChange(slugify(evt.target.value))}
+      fullWidth
+      {...props}
+    />
+  );
+};
 
-const OptionsField = ({formObject, itemName, onChange, classes}) => {
+const OptionsField = ({ formObject, itemName, onChange, classes }) => {
   const options = formObject[itemName].enum || [];
   const descriptions = formObject[itemName].descriptions || [];
   const isEnum = formObject[itemName].hasOwnProperty('enum');
@@ -264,43 +304,41 @@ const OptionsField = ({formObject, itemName, onChange, classes}) => {
           $push: ['']
         }
       }
-    })
-  
+    });
+
     onChange(newFormObject);
   }
 
   function updateOption(formObject, itemName, onChange, fieldName, value) {
-
     const newFormObject = update(formObject, {
       [itemName]: { [fieldName]: { $set: value } }
     });
-  
+
     onChange(newFormObject);
   }
-  
+
   function orderOption(formObject, itemName, onChange, sourceIndex, direction) {
-  
-    const destinationIndex = direction === 'down' ? sourceIndex + 1 :  direction === 'up' ? sourceIndex - 1 : sourceIndex;
-    
-    const orderEnum = (formObject) => {
+    const destinationIndex =
+      direction === 'down' ? sourceIndex + 1 : direction === 'up' ? sourceIndex - 1 : sourceIndex;
+
+    const orderEnum = formObject => {
       const newEnum = [...formObject[itemName].enum];
-      
+
       newEnum[sourceIndex] = formObject[itemName].enum[destinationIndex];
       newEnum[destinationIndex] = formObject[itemName].enum[sourceIndex];
-      
-      return newEnum
-    }
-  
-    const orderDescriptions = (formObject) => {
+
+      return newEnum;
+    };
+
+    const orderDescriptions = formObject => {
       const newDescriptions = [...formObject[itemName].descriptions];
-      
+
       newDescriptions[sourceIndex] = formObject[itemName].descriptions[destinationIndex];
       newDescriptions[destinationIndex] = formObject[itemName].descriptions[sourceIndex];
-      
-      return newDescriptions
-    }
-    
-  
+
+      return newDescriptions;
+    };
+
     const newFormObject = update(formObject, {
       [itemName]: {
         enum: {
@@ -310,12 +348,11 @@ const OptionsField = ({formObject, itemName, onChange, classes}) => {
           $set: orderDescriptions(formObject)
         }
       }
-    })
-  
-    onChange(newFormObject)
-  
+    });
+
+    onChange(newFormObject);
   }
-  
+
   function removeOption(formObject, itemName, onChange, index) {
     const newFormObject = update(formObject, {
       [itemName]: {
@@ -326,135 +363,169 @@ const OptionsField = ({formObject, itemName, onChange, classes}) => {
           $splice: [[index, 1]]
         }
       }
-    })
-  
+    });
+
     onChange(newFormObject);
   }
 
-  return <React.Fragment>
-    {(isEnum || isDesciptions) && <div className={classes.fieldItem}>
-      <Typography className={classes.optionsTitle} variant="h6">Options</Typography>
-      {options.map((option, index) => {
-        
-          const isUp = index === 0;
-          const isDown = index >= options.length - 1;
+  return (
+    <React.Fragment>
+      {(isEnum || isDesciptions) && (
+        <div className={classes.fieldItem}>
+          <Typography className={classes.optionsTitle} variant="h6">
+            Options
+          </Typography>
+          {options.map((option, index) => {
+            const isUp = index === 0;
+            const isDown = index >= options.length - 1;
 
-          return <div className={classes.options} key={index}>
-            {isEnum && <TextField
-              label={`Label`}
-              value={option}
-              onChange={evt =>
-                updateOption(
-                  formObject,
-                  itemName,
-                  onChange,
-                  "enum",
-                  update(options, {
-                    $splice: [[index, 1, evt.target.value]]
-                  })
-                )
-              }
-              fullWidth
-              margin="normal"
-            />}
-            {isRich ? (isDesciptions && <RichField
-              key={option}
-              label={`Description`}
-              value={descriptions[index]}
-              onChange={val =>
-                updateOption(
-                  formObject,
-                  itemName,
-                  onChange,
-                  "descriptions",
-                  update(descriptions, {
-                    $splice: [[index, 1, val]]
-                  })
-                )
-              }
-            />) : <TextField
-            label={`Description`}
-            multiline
-            value={descriptions[index]}
-            onChange={evt =>
-              updateOption(
-                formObject,
-                itemName,
-                onChange,
-                "descriptions",
-                update(descriptions, {
-                  $splice: [[index, 1, evt.target.value]]
-                })
-              )
-            }
-            fullWidth
-            margin="normal"
-          />}
-            <div className={classes.optionsActions}>
-              <IconButton disabled={isUp} onClick={() => orderOption(formObject, itemName, onChange, index, 'up')}><ArrowUpwardIcon /></IconButton>
-              <IconButton disabled={isDown} onClick={() => orderOption(formObject, itemName, onChange, index, 'down')}><ArrowDownwardIcon /></IconButton>
-              <DialogField 
-                fieldName={option}
-                onChange={() =>
-                  removeOption(formObject, itemName, onChange, index)
-                }>
-                <IconButton><ClearIcon /></IconButton>
-              </DialogField>
-            </div>
+            return (
+              <div className={classes.options} key={index}>
+                {isEnum && (
+                  <TextField
+                    label={`Label`}
+                    value={option}
+                    onChange={evt =>
+                      updateOption(
+                        formObject,
+                        itemName,
+                        onChange,
+                        'enum',
+                        update(options, {
+                          $splice: [[index, 1, evt.target.value]]
+                        })
+                      )
+                    }
+                    fullWidth
+                    margin="normal"
+                  />
+                )}
+                {isRich ? (
+                  isDesciptions && (
+                    <RichField
+                      key={option}
+                      label={`Description`}
+                      value={descriptions[index]}
+                      onChange={val =>
+                        updateOption(
+                          formObject,
+                          itemName,
+                          onChange,
+                          'descriptions',
+                          update(descriptions, {
+                            $splice: [[index, 1, val]]
+                          })
+                        )
+                      }
+                    />
+                  )
+                ) : (
+                  <TextField
+                    label={`Description`}
+                    multiline
+                    value={descriptions[index]}
+                    onChange={evt =>
+                      updateOption(
+                        formObject,
+                        itemName,
+                        onChange,
+                        'descriptions',
+                        update(descriptions, {
+                          $splice: [[index, 1, evt.target.value]]
+                        })
+                      )
+                    }
+                    fullWidth
+                    margin="normal"
+                  />
+                )}
+                <div className={classes.optionsActions}>
+                  <IconButton
+                    disabled={isUp}
+                    onClick={() => orderOption(formObject, itemName, onChange, index, 'up')}
+                  >
+                    <ArrowUpwardIcon />
+                  </IconButton>
+                  <IconButton
+                    disabled={isDown}
+                    onClick={() => orderOption(formObject, itemName, onChange, index, 'down')}
+                  >
+                    <ArrowDownwardIcon />
+                  </IconButton>
+                  <DialogField
+                    fieldName={option}
+                    onChange={() => removeOption(formObject, itemName, onChange, index)}
+                  >
+                    <IconButton>
+                      <ClearIcon />
+                    </IconButton>
+                  </DialogField>
+                </div>
+              </div>
+            );
+          })}
+          <div style={{ textAlign: 'center' }}>
+            <IconButton onClick={() => addOption(formObject, itemName, onChange)}>
+              <AddIcon />
+            </IconButton>
           </div>
-      })}
-      <div style={{ textAlign: "center" }}>
-        <IconButton onClick={() => addOption(formObject, itemName, onChange)}><AddIcon /></IconButton>
-      </div>
-    </div>}
-  </React.Fragment>
-}
+        </div>
+      )}
+    </React.Fragment>
+  );
+};
 
-const DialogField = withStyles(styles)(withTheme()(class extends React.Component {
-  state = {
-    open: false,
-  };
+const DialogField = withStyles(styles)(
+  withTheme()(
+    class extends React.Component {
+      state = {
+        open: false
+      };
 
-  handleClickOpen = () => {
-    this.setState({ open: true });
-  };
+      handleClickOpen = () => {
+        this.setState({ open: true });
+      };
 
-  handleClose = () => {
-    this.setState({ open: false });
-  };
+      handleClose = () => {
+        this.setState({ open: false });
+      };
 
-  handleDelete = () => {
-    this.setState({ open: false });
+      handleDelete = () => {
+        this.setState({ open: false });
 
-    this.props.onChange();
-  }
+        this.props.onChange();
+      };
 
-  render() {
-    const { classes, children } = this.props;
+      render() {
+        const { classes, children } = this.props;
 
-    return (
-      <div className={classes.remove}>
-        <span onClick={this.handleClickOpen}>{children}</span>
-        <Dialog
-          open={this.state.open}
-          onClose={this.handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Are you sure you want to delete <b>{this.props.fieldName}</b>?</DialogTitle>
-          <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={this.handleDelete} color="primary" autoFocus>
-              OK
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    );
-  }
-}))
+        return (
+          <div className={classes.remove}>
+            <span onClick={this.handleClickOpen}>{children}</span>
+            <Dialog
+              open={this.state.open}
+              onClose={this.handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                Are you sure you want to delete <b>{this.props.fieldName}</b>?
+              </DialogTitle>
+              <DialogActions>
+                <Button onClick={this.handleClose} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={this.handleDelete} color="primary" autoFocus>
+                  OK
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
+        );
+      }
+    }
+  )
+);
 
 class ListFields extends React.Component {
   state = {
@@ -493,16 +564,18 @@ class ListFields extends React.Component {
           {Object.keys(fields).map((fieldName, index) => {
             const field = fields[fieldName];
 
-            return <MenuItem key={index}
-                onClick={(e) => {
-                  this.handleClose(); 
+            return (
+              <MenuItem
+                key={index}
+                onClick={e => {
+                  this.handleClose();
                   onClick(field.schema);
                 }}
-                >
+              >
                 {field.title}
               </MenuItem>
+            );
           })}
-
         </Menu>
       </div>
     );
@@ -515,12 +588,12 @@ class RichField extends React.Component {
 
   toolbarConfig = {
     // Optionally specify the groups to display (displayed in the order listed).
-    display: ['INLINE_STYLE_BUTTONS', 'BLOCK_TYPE_BUTTONS', 'LINK_BUTTONS',],
+    display: ['INLINE_STYLE_BUTTONS', 'BLOCK_TYPE_BUTTONS', 'LINK_BUTTONS'],
     INLINE_STYLE_BUTTONS: [
-      {label: 'Bold', style: 'BOLD', className: 'custom-css-class'},
+      { label: 'Bold', style: 'BOLD', className: 'custom-css-class' },
       // {label: 'Italic', style: 'ITALIC'},
-      {label: 'Underline', style: 'UNDERLINE'},
-    ],
+      { label: 'Underline', style: 'UNDERLINE' }
+    ]
     // BLOCK_TYPE_DROPDOWN: [
     //   {label: 'Normal', style: 'unstyled'},
     //   {label: 'Heading Large', style: 'header-one'},
@@ -536,9 +609,9 @@ class RichField extends React.Component {
   componentDidMount() {
     const { value } = this.props;
     if (value != null) {
-      console.log("taking editor state from prop");
+      console.log('taking editor state from prop');
       this.setState({
-        editorState: RichTextEditor.createValueFromString(value, "markdown")
+        editorState: RichTextEditor.createValueFromString(value, 'markdown')
       });
     }
   }
@@ -551,7 +624,7 @@ class RichField extends React.Component {
   onChange = editorState => {
     this.setState({ editorState });
     if (this.props.onChange) {
-      this.props.onChange(editorState.toString("markdown"));
+      this.props.onChange(editorState.toString('markdown'));
     }
   };
 
@@ -562,10 +635,10 @@ class RichField extends React.Component {
           {this.props.label}
         </InputLabel>
         <div style={{ marginTop: 24, marginBottom: 8 }}>
-          <RichTextEditor 
+          <RichTextEditor
             value={this.state.editorState}
             toolbarConfig={this.toolbarConfig}
-            onChange={this.onChange} 
+            onChange={this.onChange}
           />
         </div>
       </FormControl>
@@ -573,139 +646,121 @@ class RichField extends React.Component {
   }
 }
 
-const FieldEditor = withStyles(styles)(withTheme()(({ itemName, formObject, onChange, classes }) => {
-  const isDesciption = formObject[itemName].hasOwnProperty('desciption');
+const FieldEditor = withStyles(styles)(
+  withTheme()(({ itemName, formObject, onChange, classes }) => {
+    const isDesciption = formObject[itemName].hasOwnProperty('desciption');
 
-  const getSchema = FIELDS[formObject[itemName]._type] || FIELDS.default;
-  const isRichTitle = formObject[itemName]._type === 'description';
-  
-  return (
-    <Card className={classes.field}>
-      <CardHeader className={classes.fieldHeader} title={`${getSchema.title}: ${itemName}`} />
-      <CardContent className={classes.fieldContent}>
+    const getSchema = FIELDS[formObject[itemName]._type] || FIELDS.default;
+    const isRichTitle = formObject[itemName]._type === 'description';
 
-        {isRichTitle ? <RichField
-          label={"Label"}
-          value={formObject[itemName].title}
-          onChange={val =>
-            updateField(formObject, itemName, onChange, "title", val)
-          }
-        /> : <TitleField
-          formObject={formObject} 
-          itemName={itemName} 
-          onChange={val =>
-            updateField(
-              formObject,
-              itemName,
-              onChange,
-              "title",
-              val
-            )
-          }
-          classes={classes}
-        />}
+    return (
+      <Card className={classes.field}>
+        <CardHeader className={classes.fieldHeader} title={`${getSchema.title}: ${itemName}`} />
+        <CardContent className={classes.fieldContent}>
+          {isRichTitle ? (
+            <RichField
+              label={'Label'}
+              value={formObject[itemName].title}
+              onChange={val => updateField(formObject, itemName, onChange, 'title', val)}
+            />
+          ) : (
+            <TitleField
+              formObject={formObject}
+              itemName={itemName}
+              onChange={val => updateField(formObject, itemName, onChange, 'title', val)}
+              classes={classes}
+            />
+          )}
 
-        <NameField
-          formObject={formObject} 
-          itemName={itemName} 
-          onChange={val =>
-            updateField(
-              formObject,
-              itemName,
-              onChange,
-              "name",
-              val
-            )
-          }
-          classes={classes}
-          margin="normal"
-        />
+          <NameField
+            formObject={formObject}
+            itemName={itemName}
+            onChange={val => updateField(formObject, itemName, onChange, 'name', val)}
+            classes={classes}
+            margin="normal"
+          />
 
-        {isDesciption && <RichField
-          value={formObject[itemName].description}
-          onChange={val =>
-            updateField(formObject, itemName, onChange, "description", val)
-          }
-        />}
+          {isDesciption && (
+            <RichField
+              value={formObject[itemName].description}
+              onChange={val => updateField(formObject, itemName, onChange, 'description', val)}
+            />
+          )}
 
-        <OptionsField 
-          formObject={formObject} 
-          itemName={itemName} 
-          onChange={onChange} 
-          classes={classes}
-        />
-
-      </CardContent>
-      <CardActions className={classes.fieldActions}>
+          <OptionsField
+            formObject={formObject}
+            itemName={itemName}
+            onChange={onChange}
+            classes={classes}
+          />
+        </CardContent>
+        <CardActions className={classes.fieldActions}>
           <FormControlLabel
             control={
               <Checkbox
-                onChange={evt =>
-                  setRequired(formObject, itemName, onChange, evt.target.checked)
-                }
+                onChange={evt => setRequired(formObject, itemName, onChange, evt.target.checked)}
                 checked={formObject.required.indexOf(itemName) !== -1}
               />
             }
-            label={"required"}
+            label={'required'}
           />
-          <DialogField 
+          <DialogField
             fieldName={itemName}
-            onChange={() =>
-              removeField(formObject, itemName, onChange)
-            }>
-            <IconButton><DeleteIcon /></IconButton>
+            onChange={() => removeField(formObject, itemName, onChange)}
+          >
+            <IconButton>
+              <DeleteIcon />
+            </IconButton>
           </DialogField>
         </CardActions>
-    </Card>
-  );
-}))
+      </Card>
+    );
+  })
+);
 
-export default withStyles(styles)(withTheme()(function FormEditor({ onChange, value, classes }) {
-  const formObject = value || DEFAULT_STATE;
-  const { displayOrder } = formObject;
+export default withStyles(styles)(
+  withTheme()(function FormEditor({ onChange, value, classes }) {
+    const formObject = value || DEFAULT_STATE;
+    const { displayOrder } = formObject;
 
-  return (
-    <Grid container spacing={16}>
-      <Grid item xs={12}>
-        <DragDropContext onDragEnd={(result) => orderField(formObject, result, onChange)}>
-          <Droppable droppableId={'fields'}>
-            {(provided) => (
-              <div
-                {...provided.draggableProps}
-                ref={provided.innerRef}
-              >
-                {(displayOrder || []).map((itemName, index) => (
-                  <Draggable key={itemName} draggableId={itemName} index={index}>
-                    {(provided) => (
-                      <div
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        ref={provided.innerRef}
-                        className={classes.fieldWrapper}>
+    return (
+      <Grid container spacing={16}>
+        <Grid item xs={12}>
+          <DragDropContext onDragEnd={result => orderField(formObject, result, onChange)}>
+            <Droppable droppableId={'fields'}>
+              {provided => (
+                <div {...provided.draggableProps} ref={provided.innerRef}>
+                  {(displayOrder || []).map((itemName, index) => (
+                    <Draggable key={itemName} draggableId={itemName} index={index}>
+                      {provided => (
+                        <div
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          ref={provided.innerRef}
+                          className={classes.fieldWrapper}
+                        >
                           <FieldEditor
                             formObject={formObject}
                             itemName={itemName}
                             onChange={onChange}
                           />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext> 
-      </Grid> 
-        
-      <Grid item xs={12}>
-        <ListFields 
-          fields={FIELDS}
-          onClick={(schema) => addField(formObject, schema, onChange)}
-        >
-        Add field
-        </ListFields>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </Grid>
+
+        <Grid item xs={12}>
+          <ListFields fields={FIELDS} onClick={schema => addField(formObject, schema, onChange)}>
+            Add field
+          </ListFields>
+        </Grid>
       </Grid>
-    </Grid>
-  );
-}))
+    );
+  })
+);
