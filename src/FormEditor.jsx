@@ -1,9 +1,10 @@
 import React from 'react';
 import update from 'immutability-helper';
 import RichTextEditor from 'react-rte';
-import slugify from 'slugify';
+import { isEqual } from 'lodash';
 
 import {
+  Collapse,
   Card,
   CardHeader,
   TextField,
@@ -24,20 +25,25 @@ import {
   InputLabel
 } from '@material-ui/core';
 
-import DeleteIcon from '@material-ui/icons/Delete';
-import AddIcon from '@material-ui/icons/Add';
-import ClearIcon from '@material-ui/icons/Clear';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import {
+  Delete,
+  Add,
+  Clear,
+  ArrowUpward,
+  ArrowDownward,
+  KeyboardArrowRight,
+  KeyboardArrowDown
+} from '@material-ui/icons';
+
 import { withStyles, withTheme } from '@material-ui/core/styles';
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-update.extend('$unset', function(keysToRemove, original) {
-  var copy = Object.assign({}, original);
-  for (const key of keysToRemove) delete copy[key];
-  return copy;
-});
+// update.extend('$unset', function(keysToRemove, original) {
+//   var copy = Object.assign({}, original);
+//   for (const key of keysToRemove) delete copy[key];
+//   return copy;
+// });
 
 const styles = theme => ({
   field: {
@@ -86,7 +92,7 @@ const FIELDS = {
   default: {
     title: 'Text',
     schema: { type: 'string', title: '', name: '' }
-  }
+  },
   // email: {
   //   title: 'Email',
   //   schema: {
@@ -138,15 +144,15 @@ const FIELDS = {
   //     description: '**Hello World**'
   //   }
   // },
-  // radio: {
-  //   title: 'Radio',
-  //   schema: {
-  //     _type: 'radio',
-  //     type: 'string',
-  //     enum: ['value A', 'value B', 'value C'],
-  //     descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
-  //   }
-  // },
+  radio: {
+    title: 'Radio',
+    schema: {
+      _type: 'radio',
+      type: 'string',
+      enum: ['value A', 'value B', 'value C'],
+      descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
+    }
+  },
   // checkbox: {
   //   title: 'Checkbox',
   //   schema: { _type: 'checkbox', type: 'boolean', title: '', name: '' }
@@ -228,7 +234,6 @@ function setRequired(formObject, itemName, onChange, value) {
     onChange(newFormObject);
   }
 }
-
 
 const OptionsField = ({ formObject, itemName, onChange, classes }) => {
   const options = formObject[itemName].enum || [];
@@ -387,20 +392,20 @@ const OptionsField = ({ formObject, itemName, onChange, classes }) => {
                     disabled={isUp}
                     onClick={() => orderOption(formObject, itemName, onChange, index, 'up')}
                   >
-                    <ArrowUpwardIcon />
+                    <ArrowUpward />
                   </IconButton>
                   <IconButton
                     disabled={isDown}
                     onClick={() => orderOption(formObject, itemName, onChange, index, 'down')}
                   >
-                    <ArrowDownwardIcon />
+                    <ArrowDownward />
                   </IconButton>
                   <DialogField
                     fieldName={option}
                     onChange={() => removeOption(formObject, itemName, onChange, index)}
                   >
                     <IconButton>
-                      <ClearIcon />
+                      <Clear />
                     </IconButton>
                   </DialogField>
                 </div>
@@ -409,7 +414,7 @@ const OptionsField = ({ formObject, itemName, onChange, classes }) => {
           })}
           <div style={{ textAlign: 'center' }}>
             <IconButton onClick={() => addOption(formObject, itemName, onChange)}>
-              <AddIcon />
+              <Add />
             </IconButton>
           </div>
         </div>
@@ -614,6 +619,8 @@ function updateField(formObject, itemName, onChange, fieldName, value) {
 }
 
 class FieldEditor extends React.Component {
+  state = { expanded: false };
+
   handleTitleChange = evt => {
     const newFormObject = update(this.props.formObject, {
       [this.props.itemName]: { title: { $set: evt.target.value } }
@@ -626,30 +633,42 @@ class FieldEditor extends React.Component {
     const newItemName = evt.target.value;
     const { itemName, formObject, onChange } = this.props;
 
-    const newFormObject = update(formObject, {
+    const updateQuery = {
       [newItemName]: { $set: formObject[itemName] },
       $unset: [itemName],
       displayOrder: {
         $splice: [[formObject.displayOrder.indexOf(itemName), 1, newItemName]]
-      },
-      required: {
-        $splice: [[formObject.required.indexOf(itemName), 1, newItemName]]
       }
-    });
+    };
 
-    onChange(newFormObject);
+    if (formObject.required.indexOf(itemName) !== -1) {
+      updateQuery.required = {
+        $splice: [[formObject.required.indexOf(itemName), 1, newItemName]]
+      };
+    }
 
-    // const newFormObject = update(this.props.formObject, {
-    //   [this.props.itemName]: { title: { $set: evt.target.value } }
-    // });
-    // this.props.onChange(newFormObject);
+    onChange(update(formObject, updateQuery));
   };
 
   componentDidMount() {
     console.log('mounted new comp');
   }
 
+  handleExpandClick = () => {
+    this.setState({ expanded: !this.state.expanded });
+  };
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { itemName, formObject, onChange, classes } = this.props;
+    if (itemName !== nextProps.itemName) return true;
+    if (this.state.expanded !== nextState.expanded) return true;
+    if (formObject.required.length !== nextProps.formObject.required.length) return true;
+    if (!isEqual(formObject[itemName], nextProps.formObject[itemName])) return true;
+    return false;
+  }
+
   render() {
+    const { expanded } = this.state;
     const { itemName, formObject, onChange, classes } = this.props;
     const getSchema = FIELDS[formObject[itemName]._type] || FIELDS.default;
 
@@ -657,9 +676,19 @@ class FieldEditor extends React.Component {
     const name = itemName;
     return (
       <Card>
-        <CardHeader className={classes.fieldHeader} subheader={`${getSchema.title}: ${itemName}`} />
-        <CardContent className={classes.fieldContent}>
-          {/* {isRichTitle ? (
+        <CardHeader
+          className={classes.fieldHeader}
+          subheader={getSchema.title}
+          title={itemName}
+          action={
+            <IconButton onClick={this.handleExpandClick}>
+              {expanded ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+            </IconButton>
+          }
+        />
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <CardContent className={classes.fieldContent}>
+            {/* {isRichTitle ? (
             <RichField
               label={'Label'}
               value={formObject[itemName].title}
@@ -674,22 +703,22 @@ class FieldEditor extends React.Component {
             />
           )} */}
 
-          <TextField
-            label="Title"
-            value={title}
-            onChange={this.handleTitleChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Name"
-            value={itemName}
-            onChange={this.handleChangName}
-            fullWidth
-            margin="normal"
-          />
+            <TextField
+              label="Title"
+              value={title}
+              onChange={this.handleTitleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Name"
+              value={itemName}
+              onChange={this.handleChangName}
+              fullWidth
+              margin="normal"
+            />
 
-          {/* <NameField
+            {/* <NameField
             formObject={formObject}
             itemName={itemName}
             onChange={val => updateField(formObject, itemName, onChange, 'name', val)}
@@ -697,7 +726,7 @@ class FieldEditor extends React.Component {
             margin="normal"
           /> */}
 
-          {/* {isDesciption && (
+            {/* {isDesciption && (
             <RichField
               value={formObject[itemName].description}
               onChange={val => updateField(formObject, itemName, onChange, 'description', val)}
@@ -710,7 +739,8 @@ class FieldEditor extends React.Component {
             onChange={onChange}
             classes={classes}
           /> */}
-        </CardContent>
+          </CardContent>
+        </Collapse>
         <CardActions className={classes.fieldActions}>
           <FormControlLabel
             control={
@@ -726,7 +756,7 @@ class FieldEditor extends React.Component {
             onChange={() => removeField(formObject, itemName, onChange)}
           >
             <IconButton>
-              <DeleteIcon />
+              <Delete />
             </IconButton>
           </DialogField>
         </CardActions>
