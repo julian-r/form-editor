@@ -94,49 +94,34 @@ const FIELDS = {
     title: 'Text',
     schema: { type: 'string', title: '', name: '' }
   },
-  // email: {
-  //   title: 'Email',
-  //   schema: {
-  //     _type: 'email',
-  //     type: 'string',
-  //     title: '',
-  //     description: '**Hello World**',
-  //     format: 'email'
-  //   }
-  // },
-  // date: {
-  //   title: 'Date',
-  //   schema: {
-  //     _type: 'date',
-  //     type: 'string',
-  //     title: '',
-  //     description: '**Hello World**',
-  //     format: 'date'
-  //   }
-  // },
-  // 'telephone-number': {
-  //   title: 'Telephone number',
-  //   schema: {
-  //     _type: 'telephone-number',
-  //     type: 'string',
-  //     title: '',
-  //     description: '**Hello World**',
-  //     format: 'telephone-number'
-  //   }
-  // },
-  // number: {
-  //   title: 'Number',
-  //   schema: { _type: 'number', type: 'number', title: '', name: '', description: '**Hello World**' }
-  // },
-  // url: {
-  //   title: 'URL',
-  //   schema: {
-  //     _type: 'url',
-  //     type: 'string',
-  //     title: '',
-  //     format: 'url'
-  //   }
-  // },
+  email: {
+    title: 'Email',
+    schema: {
+      type: 'string',
+      title: '',
+      format: 'email'
+    }
+  },
+  date: {
+    title: 'Date',
+    schema: {
+      type: 'string',
+      title: '',
+      format: 'date'
+    }
+  },
+  number: {
+    title: 'Number',
+    schema: { type: 'number', title: '' }
+  },
+  url: {
+    title: 'URL',
+    schema: {
+      type: 'string',
+      title: '',
+      format: 'url'
+    }
+  },
   description: {
     title: 'Description Text',
     schema: {
@@ -153,10 +138,6 @@ const FIELDS = {
       descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
     }
   },
-  // checkbox: {
-  //   title: 'Checkbox',
-  //   schema: { _type: 'checkbox', type: 'boolean', title: '', name: '' }
-  // },
   dropdown: {
     title: 'Dropdown',
     schema: {
@@ -166,6 +147,10 @@ const FIELDS = {
       enum: ['value A', 'value B'],
       titles: ['Text for A', 'Text for B']
     }
+  },
+  boolean: {
+    title: 'Checkbox',
+    schema: { type: 'boolean', description: '', name: '' }
   }
 };
 
@@ -292,7 +277,6 @@ class EnumField extends React.Component {
                     onChange={evt => onTitleChange(index, evt.target.value)}
                   />
                 )}
-
                 <div className={classes.optionsActions}>
                   <IconButton disabled={isUp} onClick={() => onChangePosition(index, index - 1)}>
                     <ArrowUpward />
@@ -490,14 +474,21 @@ class RichField extends React.Component {
 class FieldEditor extends React.Component {
   state = { expanded: false };
 
-  handleTitleChange = evt => {
+  handleChangeTitle = evt => {
     const newFormObject = produce(this.props.formObject, draft => {
       draft.properties[this.props.itemName].title = evt.target.value;
     });
     this.props.onChange(newFormObject);
   };
 
-  handleChangName = evt => {
+  handleChangeDescription = value => {
+    const newFormObject = produce(this.props.formObject, draft => {
+      draft.properties[this.props.itemName].description = value;
+    });
+    this.props.onChange(newFormObject);
+  };
+
+  handleChangeName = evt => {
     const newItemName = evt.target.value;
     const { itemName, formObject, onChange } = this.props;
 
@@ -568,7 +559,8 @@ class FieldEditor extends React.Component {
 
       draft.properties[itemName].descriptions != null &&
         draft.properties[itemName].descriptions.splice(index, 1);
-      draft.properties[itemName].titles != null && draft.properties[itemName].titles.splice(index, 1);
+      draft.properties[itemName].titles != null &&
+        draft.properties[itemName].titles.splice(index, 1);
     });
     onChange(newFormObject);
   };
@@ -607,7 +599,7 @@ class FieldEditor extends React.Component {
   render() {
     const { expanded } = this.state;
     const { itemName, formObject, onChange, classes, item } = this.props;
-    const fieldType = FIELDS[item._type] || FIELDS.default;
+    const fieldType = FIELDS[item.displayAs] || FIELDS[item.type] || FIELDS.default;
 
     const title = item.title;
     return (
@@ -624,36 +616,22 @@ class FieldEditor extends React.Component {
         />
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent className={classes.fieldContent}>
-            {/* {isRichTitle ? (
-            <RichField
-              label={'Label'}
-              value={formObject[itemName].title}
-              onChange={val => updateField(formObject, itemName, onChange, 'title', val)}
-            />
-          ) : (
-            <TitleField
-              formObject={formObject}
-              itemName={itemName}
-              onChange={val => updateField(formObject, itemName, onChange, 'title', val)}
-              classes={classes}
-            />
-          )} */}
-
-            <TextField
-              label="Title"
-              value={title}
-              onChange={this.handleTitleChange}
-              fullWidth
-              margin="normal"
-            />
             <TextField
               label="Name"
               value={itemName}
-              onChange={this.handleChangName}
+              onChange={this.handleChangeName}
               fullWidth
               margin="normal"
             />
-
+            {item.title != null && (
+              <TextField
+                label="Title"
+                value={title}
+                onChange={this.handleChangeTitle}
+                fullWidth
+                margin="normal"
+              />
+            )}
             {item.enum != null && (
               <EnumField
                 options={item.enum}
@@ -668,40 +646,23 @@ class FieldEditor extends React.Component {
                 onChangePosition={this.handleEnumChangePosition}
               />
             )}
-
-            {/* <NameField
-            formObject={formObject}
-            itemName={itemName}
-            onChange={val => updateField(formObject, itemName, onChange, 'name', val)}
-            classes={classes}
-            margin="normal"
-          /> */}
-
-            {/* {isDesciption && (
-            <RichField
-              value={formObject[itemName].description}
-              onChange={val => updateField(formObject, itemName, onChange, 'description', val)}
-            />
-          )}
-
-          <OptionsField
-            formObject={formObject}
-            itemName={itemName}
-            onChange={onChange}
-            classes={classes}
-          /> */}
+            {item.description != null && (
+              <RichField value={item.description} onChange={this.handleChangeDescription} />
+            )}
           </CardContent>
         </Collapse>
         <CardActions className={classes.fieldActions}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                onChange={evt => setRequired(formObject, itemName, onChange, evt.target.checked)}
-                checked={formObject.required.indexOf(itemName) !== -1}
-              />
-            }
-            label={'required'}
-          />
+          {item.displayAs != 'description' && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  onChange={evt => setRequired(formObject, itemName, onChange, evt.target.checked)}
+                  checked={formObject.required.indexOf(itemName) !== -1}
+                />
+              }
+              label={'required'}
+            />
+          )}
           <DeleteConfirmDialog
             fieldName={itemName}
             onChange={() => removeField(formObject, itemName, onChange)}
