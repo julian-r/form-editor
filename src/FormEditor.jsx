@@ -419,9 +419,9 @@ class RichField extends React.Component {
     // Optionally specify the groups to display (displayed in the order listed).
     display: ['INLINE_STYLE_BUTTONS', 'BLOCK_TYPE_BUTTONS', 'LINK_BUTTONS'],
     INLINE_STYLE_BUTTONS: [
-      { label: 'Bold', style: 'BOLD', className: 'custom-css-class' },
+      { label: 'Bold', style: 'BOLD' },
       { label: 'Italic', style: 'ITALIC' },
-      { label: 'Underline', style: 'UNDERLINE' }
+      // { label: 'Underline', style: 'UNDERLINE' }
     ]
   };
 
