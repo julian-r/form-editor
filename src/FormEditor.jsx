@@ -155,12 +155,16 @@ const FIELDS = {
 };
 
 function addField(formObject, schema, onChange) {
-  const fieldName = `field-${new Date().getTime()}`;
+  let fieldName = `field-${formObject.displayOrder.length}`;
+
+  for (let i = 0; formObject.properties[fieldName] != undefined; i++) {
+    fieldName = `field-${formObject.displayOrder.length + i}`;
+  }
 
   const newFormObject = produce(formObject, draft => {
     draft.displayOrder.push(fieldName);
     if (formObject.properties == null) draft.properties = {};
-    draft.properties[fieldName] = schema;
+    draft.properties[fieldName] = Object.assign({}, schema);
     draft.properties[fieldName]._id = fieldName;
   });
 
@@ -420,7 +424,7 @@ class RichField extends React.Component {
     display: ['INLINE_STYLE_BUTTONS', 'BLOCK_TYPE_BUTTONS', 'LINK_BUTTONS'],
     INLINE_STYLE_BUTTONS: [
       { label: 'Bold', style: 'BOLD' },
-      { label: 'Italic', style: 'ITALIC' },
+      { label: 'Italic', style: 'ITALIC' }
       // { label: 'Underline', style: 'UNDERLINE' }
     ]
   };
@@ -502,10 +506,6 @@ class FieldEditor extends React.Component {
     });
     onChange(newFormObject);
   };
-
-  componentDidMount() {
-    console.log('mounted new comp');
-  }
 
   handleExpandClick = () => {
     this.setState({ expanded: !this.state.expanded });

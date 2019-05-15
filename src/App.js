@@ -3,87 +3,14 @@ import FormEditor from "./FormEditor";
 
 import { Grid, Card } from "@material-ui/core";
 
-const DEMO_STATE = {
-  "displayOrder": [
-    "field-1",
-    "field-2",
-    "field-3",
-    "field-4",
-    "field-5",
-    "field-6",
-    "field-7"
-  ],
-  "required": [
-    "field-4",
-    "field-5",
-    "field-6"
-  ],
-  "field-1": {
-    "type": "string",
-    "title": "Label 1",
-    "description": "**Hello World**",
-    "format": "telephone-number"
-  },
-  "field-2": {
-    "type": "number",
-    "title": "Label 2",
-    "description": "**Hello World**",
-    "format": "number"
-  },
-  "field-3": {
-    "type": "string",
-    "title": "Label 3",
-    "description": "**Hello World**",
-    "format": "url"
-  },
-  "field-4": {
-    "type": "text",
-    "title": "Label 4",
-    "description": "**Hello World**",
-    "format": "description"
-  },
-  "field-5": {
-    "type": "string",
-    "title": "Label 5",
-    "enum": [
-      "value Adsds",
-      "value B",
-      "value C",
-      "dsdsd"
-    ],
-    "descriptions": [
-      "Rich text for A",
-      "Rich text for B",
-      "Rich text for C",
-      ""
-    ],
-    "format": "radio"
-  },
-  "field-6": {
-    "type": "boolean",
-    "title": ""
-  },
-  "field-7": {
-    "type": "string",
-    "title": "",
-    "enum": [
-      "value A",
-      "value B"
-    ],
-    "descriptions": [
-      "Rich text for A",
-      "Rich text for B"
-    ],
-    "format": "dropdown"
-  }
-}
+const DEMO_STATE = {"displayOrder":["Vorname","Nachname","Straße","tos","Hausnummer","Lieferbedinungen","Telefonnummer","E-Mail Adresse"],"properties":{"E-Mail Adresse":{"_id":"field-1557908960867","format":"email","title":"E-Mail Adresse","type":"string"},"Hausnummer":{"_id":"field-1557908924685","name":"","title":"Hausnummer","type":"string"},"Lieferbedinungen":{"_id":"field-1557909114310","description":"Nur gültig bei Lieferadresse in Österreich wenn in den letzten 6 Monaten kein Abo bezogen wurde.\n","displayAs":"description"},"Nachname":{"_id":"field-15579081866098","name":"","title":"Nachname","type":"string"},"Straße":{"_id":"field-1557908892764","name":"","title":"Straße","type":"string"},"Telefonnummer":{"_id":"field-1557908979313","name":"","title":"Telefonnummer","type":"string"},"Vorname":{"_id":"field-1557908866098","name":"","title":"Vorname","type":"string"},"field-1557908913643":{"_id":"field-1557908913643","title":"","type":"number"},"tos":{"_id":"field-1557908999017","description":"Mit der Anmeldung stimme ich den [Allgemeinen Geschäftsbedingungen](${tos_url}) zu.\n  Hier gehts zur [Datenschutzinfo](${pp_url}). \n","name":"","type":"boolean"}},"required":["Vorname","Nachname","Straße","Hausnummer","E-Mail Adresse","Telefonnummer","tos"],"type":"object"}
 
 class App extends React.Component {
   state = { editor: {
     displayOrder: [], 
     required: []
   } };
-  // state = { editor: DEMO_STATE };
+  state = { editor: DEMO_STATE };
 
   onEditorChange = value => {
     // console.log(value)
