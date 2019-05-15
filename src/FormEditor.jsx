@@ -137,14 +137,13 @@ const FIELDS = {
   //     format: 'url'
   //   }
   // },
-  // description: {
-  //   title: 'Description Text',
-  //   schema: {
-  //     _type: 'description',
-  //     type: 'text',
-  //     description: '**Hello World**'
-  //   }
-  // },
+  description: {
+    title: 'Description Text',
+    schema: {
+      displayAs: 'description',
+      description: ''
+    }
+  },
   radio: {
     title: 'Radio',
     schema: {
@@ -153,21 +152,21 @@ const FIELDS = {
       enum: ['value A', 'value B', 'value C'],
       descriptions: ['Rich text for A', 'Rich text for B', 'Rich text for C']
     }
-  }
+  },
   // checkbox: {
   //   title: 'Checkbox',
   //   schema: { _type: 'checkbox', type: 'boolean', title: '', name: '' }
   // },
-  // dropdown: {
-  //   title: 'Dropdown',
-  //   schema: {
-  //     _type: 'dropdown',
-  //     type: 'string',
-  //     title: '',
-  //     enum: ['value A', 'value B'],
-  //     descriptions: ['Text for A', 'Text for B']
-  //   }
-  // }
+  dropdown: {
+    title: 'Dropdown',
+    schema: {
+      displayAs: 'dropdown',
+      type: 'string',
+      title: '',
+      enum: ['value A', 'value B'],
+      titles: ['Text for A', 'Text for B']
+    }
+  }
 };
 
 function addField(formObject, schema, onChange) {
@@ -241,9 +240,11 @@ class EnumField extends React.Component {
     const {
       options,
       descriptions,
+      titles,
       classes,
       onNameChange,
       onDescriptionChange,
+      onTitleChange,
       onAddOption,
       onDeleteOption,
       onChangePosition
@@ -258,7 +259,13 @@ class EnumField extends React.Component {
             const isUp = index === 0;
             const isDown = index >= options.length - 1;
 
-            const description = descriptions[index];
+            let description, title;
+            if (descriptions != null) {
+              description = descriptions[index];
+            }
+            if (titles != null) {
+              title = titles[index];
+            }
 
             return (
               <div className={classes.options} key={index}>
@@ -269,11 +276,22 @@ class EnumField extends React.Component {
                   margin="normal"
                   onChange={evt => onNameChange(index, evt.target.value)}
                 />
-                <RichField
-                  label={`Description`}
-                  value={description}
-                  onChange={val => onDescriptionChange(index, val)}
-                />
+                {description && (
+                  <RichField
+                    label={`Description`}
+                    value={description}
+                    onChange={val => onDescriptionChange(index, val)}
+                  />
+                )}
+                {title && (
+                  <TextField
+                    label={`Description`}
+                    value={title}
+                    fullWidth
+                    margin="normal"
+                    onChange={evt => onTitleChange(index, evt.target.value)}
+                  />
+                )}
 
                 <div className={classes.optionsActions}>
                   <IconButton disabled={isUp} onClick={() => onChangePosition(index, index - 1)}>
@@ -520,6 +538,15 @@ class FieldEditor extends React.Component {
     onChange(newFormObject);
   };
 
+  handleEnumTitleChange = (index, value) => {
+    const { itemName, formObject, onChange } = this.props;
+
+    const newFormObject = produce(formObject, draft => {
+      draft.properties[itemName].titles[index] = value;
+    });
+    onChange(newFormObject);
+  };
+
   handleEnumAddOption = () => {
     const { itemName, formObject, onChange } = this.props;
 
@@ -527,8 +554,8 @@ class FieldEditor extends React.Component {
       draft.properties[itemName].enum.push('');
       if (formObject.properties[itemName].displayAs === 'radio')
         draft.properties[itemName].descriptions.push('');
-      else if (formObject.properties[itemName].displayAs === 'select')
-        draft.properties[itemName].names.push('');
+      else if (formObject.properties[itemName].displayAs === 'dropdown')
+        draft.properties[itemName].titles.push('');
     });
     onChange(newFormObject);
   };
@@ -541,7 +568,7 @@ class FieldEditor extends React.Component {
 
       draft.properties[itemName].descriptions != null &&
         draft.properties[itemName].descriptions.splice(index, 1);
-      draft.properties[itemName].names != null && draft.properties[itemName].names.splice(index, 1);
+      draft.properties[itemName].titles != null && draft.properties[itemName].titles.splice(index, 1);
     });
     onChange(newFormObject);
   };
@@ -559,10 +586,10 @@ class FieldEditor extends React.Component {
         draft.properties[itemName].descriptions.splice(oldPos, 1);
         draft.properties[itemName].descriptions.splice(newPos, 0, description);
       }
-      if (draft.properties[itemName].names != null) {
-        const name = draft.properties[itemName].names[oldPos];
-        draft.properties[itemName].names.splice(oldPos, 1);
-        draft.properties[itemName].names.splice(newPos, 0, name);
+      if (draft.properties[itemName].titles != null) {
+        const name = draft.properties[itemName].titles[oldPos];
+        draft.properties[itemName].titles.splice(oldPos, 1);
+        draft.properties[itemName].titles.splice(newPos, 0, name);
       }
     });
     onChange(newFormObject);
@@ -631,9 +658,11 @@ class FieldEditor extends React.Component {
               <EnumField
                 options={item.enum}
                 descriptions={item.descriptions}
+                titles={item.titles}
                 classes={classes}
                 onNameChange={this.handleEnumNameChange}
                 onDescriptionChange={this.handleEnumDescriptionChange}
+                onTitleChange={this.handleEnumTitleChange}
                 onAddOption={this.handleEnumAddOption}
                 onDeleteOption={this.handleEnumDeleteOption}
                 onChangePosition={this.handleEnumChangePosition}
