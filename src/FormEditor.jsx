@@ -496,12 +496,21 @@ class FieldEditor extends React.Component {
     const newItemName = evt.target.value;
     const { itemName, formObject, onChange } = this.props;
 
+    if (formObject.properties[newItemName] != undefined) {
+      // prevent duplicate object keys
+      return;
+    }
+
     const newFormObject = produce(formObject, draft => {
       draft.properties[newItemName] = draft.properties[itemName];
       delete draft.properties[itemName];
       draft.displayOrder.splice(formObject.displayOrder.indexOf(itemName), 1, newItemName);
       if (formObject.required.indexOf(itemName) !== -1) {
         draft.required.splice(formObject.required.indexOf(itemName), 1, newItemName);
+      }
+      // ad an _id attribute in case it does not have one, so everything can still be edited continuously
+      if (draft.properties[newItemName]._id == null) {
+        draft.properties[newItemName]._id = itemName;
       }
     });
     onChange(newFormObject);
@@ -692,7 +701,7 @@ class FormEditor extends React.Component {
                 <div {...provided.draggableProps} ref={provided.innerRef}>
                   {(displayOrder || []).map((itemName, index) => {
                     const item = formObject.properties[itemName];
-                    const key = item._id;
+                    const key = item._id || itemName;
                     return (
                       <Draggable key={key} draggableId={key} index={index}>
                         {provided => (
