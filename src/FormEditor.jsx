@@ -23,7 +23,8 @@ import {
   DialogActions,
   Typography,
   FormControl,
-  InputLabel
+  InputLabel,
+  Avatar
 } from '@material-ui/core';
 
 import {
@@ -87,12 +88,12 @@ const styles = theme => ({
   }
 });
 
-const DEFAULT_STATE = { type: 'object', properties: {}, displayOrder: [], required: [] };
+const DEFAULT_VALUE = { type: 'object', properties: {}, displayOrder: [], required: [] };
 
 const FIELDS = {
   default: {
     title: 'Text',
-    schema: { type: 'string', title: '', name: '' }
+    schema: { type: 'string', title: '' }
   },
   email: {
     title: 'Email',
@@ -150,14 +151,14 @@ const FIELDS = {
   },
   boolean: {
     title: 'Checkbox',
-    schema: { type: 'boolean', description: '', name: '' }
+    schema: { type: 'boolean', description: '' }
   }
 };
 
 function addField(formObject, schema, onChange) {
   let fieldName = `field-${formObject.displayOrder.length}`;
 
-  for (let i = 0; formObject.properties[fieldName] != undefined; i++) {
+  for (let i = 0; formObject.properties[fieldName] !== undefined; i++) {
     fieldName = `field-${formObject.displayOrder.length + i}`;
   }
 
@@ -265,16 +266,16 @@ class EnumField extends React.Component {
                   margin="normal"
                   onChange={evt => onNameChange(index, evt.target.value)}
                 />
-                {description && (
+                {description != null && (
                   <RichField
                     label={`Description`}
                     value={description}
                     onChange={val => onDescriptionChange(index, val)}
                   />
                 )}
-                {title && (
+                {title != null && (
                   <TextField
-                    label={`Description`}
+                    label={`Title`}
                     value={title}
                     fullWidth
                     margin="normal"
@@ -496,7 +497,7 @@ class FieldEditor extends React.Component {
     const newItemName = evt.target.value;
     const { itemName, formObject, onChange } = this.props;
 
-    if (formObject.properties[newItemName] != undefined) {
+    if (formObject.properties[newItemName] !== undefined) {
       // prevent duplicate object keys
       return;
     }
@@ -605,10 +606,15 @@ class FieldEditor extends React.Component {
   //   return false;
   // }
 
+  handleDelete = () => {
+    this.props.onDelete(this.props.itemName);
+  };
+
   render() {
     const { expanded } = this.state;
     const { itemName, formObject, onChange, classes, item } = this.props;
-    const fieldType = FIELDS[item.displayAs] || FIELDS[item.type] || FIELDS.default;
+    const fieldType =
+      FIELDS[item.displayAs] || FIELDS[item.type] || FIELDS[item.format] || FIELDS.default;
 
     const title = item.title;
     return (
@@ -617,6 +623,11 @@ class FieldEditor extends React.Component {
           className={classes.fieldHeader}
           subheader={fieldType.title}
           title={itemName}
+          avatar={
+            <Avatar className={classes.avatar}>
+              {itemName[0]}
+            </Avatar>
+          }
           action={
             <IconButton onClick={this.handleExpandClick}>
               {expanded ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
@@ -661,7 +672,7 @@ class FieldEditor extends React.Component {
           </CardContent>
         </Collapse>
         <CardActions className={classes.fieldActions}>
-          {item.displayAs != 'description' && (
+          {item.displayAs !== 'description' && (
             <FormControlLabel
               control={
                 <Checkbox
@@ -672,10 +683,7 @@ class FieldEditor extends React.Component {
               label={'required'}
             />
           )}
-          <DeleteConfirmDialog
-            fieldName={itemName}
-            onChange={() => removeField(formObject, itemName, onChange)}
-          >
+          <DeleteConfirmDialog fieldName={itemName} onChange={this.handleDelete}>
             <IconButton>
               <Delete />
             </IconButton>
@@ -687,9 +695,27 @@ class FieldEditor extends React.Component {
 }
 
 class FormEditor extends React.Component {
+  getFormObject() {
+    return this.props.value || DEFAULT_VALUE;
+  }
+
+  handleDelete = fieldName => {
+    const formObject = this.getFormObject();
+    const newFormObject = produce(formObject, draft => {
+      draft.displayOrder.splice(formObject.displayOrder.indexOf(fieldName), 1);
+
+      if (formObject.required.indexOf(fieldName) !== -1) {
+        draft.required.splice(formObject.required.indexOf(fieldName), 1);
+      }
+      console.log('Deleting fieldname:', fieldName)
+      delete draft.properties[fieldName];
+    });
+    this.props.onChange(newFormObject);
+  };
+
   render() {
     const { onChange, value, classes } = this.props;
-    const formObject = value || DEFAULT_STATE;
+    const formObject = this.getFormObject();
     const { displayOrder } = formObject;
 
     return (
@@ -717,6 +743,7 @@ class FormEditor extends React.Component {
                               onChange={onChange}
                               classes={classes}
                               item={item}
+                              onDelete={this.handleDelete}
                             />
                           </div>
                         )}
